@@ -214,9 +214,6 @@ class IAMPolicyAgent:
         1. Searches vector DB for relevant IAM documentation 
         2. Uses LLM with that context to create a detailed, actionable prompt
         """
-        print(f"🔍 Analyzing prompt: '{user_prompt}'")
-        print("📋 Searching fine-grained index for specific concepts...")
-        
         # Search for IAM concepts and terminology (focus on fine-grained content)
         concept_results = self._search_with_reranking(
             user_prompt, self.fine_grained_index, top_k=20, top_n=8
@@ -401,7 +398,6 @@ Please create an enhanced prompt that includes all the specific technical detail
         This searches for larger context chunks that contain complete policy examples,
         step-by-step procedures, and comprehensive guidance.
         """
-        print(f"📚 Gathering policy context for: '{enhanced_prompt}'")
         print("🎯 Searching contextual index for complete examples...")
         
         # Search for complete policy examples (focus on contextual content)
@@ -420,7 +416,7 @@ Please create an enhanced prompt that includes all the specific technical detail
         security_results = self._search_index(
             security_query, self.contextual_index, top_k=8
         )
-        
+
         # Extract relevant examples (prioritize contextual and complete_example content)
         relevant_examples = []
         for result in examples_results:
@@ -786,18 +782,14 @@ Generate a complete IAM policy that fulfills this requirement securely and follo
         print("=" * 60)
         
         # Step 1: Enhance prompt using vector search + LLM
+        print("📋 Searching fine-grained index for specific concepts...")
         enhancement = self.enhance_prompt_with_vector_context(user_prompt)
-        
-        print(f"\n📈 Prompt Enhancement Results:")
-        print(f"   Confidence: {enhancement.confidence_score:.1%}")
-        # Show a reasonable preview but not the full enhancement here since it's shown later in display_results
-        enhanced_preview = enhancement.enhanced_prompt[:200] + "..." if len(enhancement.enhanced_prompt) > 200 else enhancement.enhanced_prompt
-        print(f"   Enhanced: {enhanced_preview}")
         
         # Step 2: Generate policy context using contextual index  
         context = self.generate_policy_context(enhancement.enhanced_prompt)
         
-        print(f"\n📚 Policy Context Results:")
+        print(f"\n✅ Research Complete:")
+        print(f"   Enhancement Confidence: {enhancement.confidence_score:.1%}")
         print(f"   Found {len(context.relevant_examples)} policy examples")
         print(f"   Found {len(context.best_practices)} best practices")
         print(f"   Found {len(context.security_considerations)} security notes")
@@ -832,34 +824,28 @@ Generate a complete IAM policy that fulfills this requirement securely and follo
     def display_results(self, enhancement: PromptEnhancement, context: PolicyGenerationContext):
         """Display comprehensive results for the user."""
         print("\n" + "=" * 60)
-        print("📋 RESEARCH AGENT RECOMMENDATIONS")
+        print("📋 DETAILED ANALYSIS RESULTS")
         print("=" * 60)
         
         # Show the enhancement process
-        print(f"\n🔍 PROMPT ENHANCEMENT")
-        print(f"Original: '{enhancement.original_prompt}'")
-        # Don't truncate the enhanced prompt - users need to see the full enhancement
-        print(f"Enhanced: '{enhancement.enhanced_prompt}'")
+        print(f"\n🔍 PROMPT TRANSFORMATION")
+        print(f"Enhanced Specification:")
+        # Show the full enhanced prompt without truncation
+        print(f"{enhancement.enhanced_prompt}")
         
         if enhancement.llm_reasoning:
-            print(f"\n🧠 LLM Analysis:")
-            # Show more reasoning but with reasonable limit
-            reasoning_preview = enhancement.llm_reasoning[:600] + "..." if len(enhancement.llm_reasoning) > 600 else enhancement.llm_reasoning
-            print(f"{reasoning_preview}")
-        
-        if enhancement.confidence_score < 0.7:
-            print(f"\n⚠️  Note: Enhancement confidence is {enhancement.confidence_score:.1%}")
-            if enhancement.missing_elements:
-                print(f"Missing elements: {', '.join(enhancement.missing_elements)}")
+            print(f"\n🧠 AI Analysis:")
+            # Show the full reasoning without truncation
+            print(f"{enhancement.llm_reasoning}")
         
         # Policy generation context
-        print(f"\n📚 DOCUMENTATION CONTEXT")
+        print(f"\n📚 AWS DOCUMENTATION CONTEXT")
         
         if context.relevant_examples:
-            print(f"\n📄 Found {len(context.relevant_examples)} Relevant Policy Examples:")
+            print(f"\n📄 Relevant Policy Examples ({len(context.relevant_examples)} found):")
             for i, example in enumerate(context.relevant_examples[:3], 1):
-                print(f"\n   Example {i} (Score: {example['score']:.3f}):")
-                print(f"   {example['text'][:400]}...")
+                print(f"\n   Example {i} (Relevance: {example['score']:.3f}):")
+                print(f"   {example['text'][:350]}...")
         
         if context.best_practices:
             print(f"\n⭐ Best Practices:")
@@ -999,6 +985,10 @@ Generate a complete IAM policy that fulfills this requirement securely and follo
             print(f"📝 Policy saved as Markdown: {md_path}")
         
         return saved_files
+
+    def _format_enhanced_prompt(self, enhanced_prompt: str) -> str:
+        """Format the enhanced prompt for better readability - no longer needed since we show full text."""
+        return enhanced_prompt
 
 def main():
     parser = argparse.ArgumentParser(description="IAM Policy Research Agent with LLM Enhancement")
