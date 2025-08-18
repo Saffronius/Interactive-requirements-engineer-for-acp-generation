@@ -7,21 +7,18 @@ try:
     from .vector_store.base import VectorStore, Document, SearchResult, SearchRequest, SearchType
     from .vector_store.pinecone_store import PineconeStore
     from .vector_store.pinecone_mcp_store import PineconeMCPStore
-    from .vector_store.pinecone_mcp_enhanced import PineconeMCPEnhancedStore
     from .vector_store.qdrant_store import QdrantStore
 except ImportError:
     # Fall back to absolute imports (when run as script)
     from vector_store.base import VectorStore, Document, SearchResult, SearchRequest, SearchType
     from vector_store.pinecone_store import PineconeStore
     from vector_store.pinecone_mcp_store import PineconeMCPStore
-    from vector_store.pinecone_mcp_enhanced import PineconeMCPEnhancedStore
     from vector_store.qdrant_store import QdrantStore
 
 
 class VectorStoreType(Enum):
     PINECONE = "pinecone"
     PINECONE_MCP = "pinecone_mcp"
-    PINECONE_MCP_ENHANCED = "pinecone_mcp_enhanced"
     QDRANT = "qdrant"
 
 
@@ -43,8 +40,6 @@ class SearchAgent:
             return PineconeStore(**self.store_config)
         elif self.store_type == VectorStoreType.PINECONE_MCP:
             return PineconeMCPStore(**self.store_config)
-        elif self.store_type == VectorStoreType.PINECONE_MCP_ENHANCED:
-            return PineconeMCPEnhancedStore(**self.store_config)
         elif self.store_type == VectorStoreType.QDRANT:
             return QdrantStore(**self.store_config)
         else:

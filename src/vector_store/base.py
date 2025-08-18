@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum
 
 
@@ -13,7 +13,7 @@ class SearchType(str, Enum):
 class Document(BaseModel):
     id: str
     text: str
-    metadata: Dict[str, Any] = {}
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     embedding: Optional[List[float]] = None
 
 
@@ -21,7 +21,7 @@ class SearchResult(BaseModel):
     id: str
     score: float
     text: str
-    metadata: Dict[str, Any] = {}
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 class SearchRequest(BaseModel):

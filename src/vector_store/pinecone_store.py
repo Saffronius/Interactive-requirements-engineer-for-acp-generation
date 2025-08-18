@@ -199,11 +199,22 @@ class PineconeStore(VectorStore):
         try:
             index = self.pc.Index(index_name)
             stats = index.describe_index_stats()
+            # Handle both dict and object-like responses
+            if isinstance(stats, dict):
+                total = stats.get("total_vector_count")
+                dimension = stats.get("dimension") or stats.get("vectors", {}).get("size")
+                fullness = stats.get("index_fullness")
+                namespaces = stats.get("namespaces") or {}
+            else:
+                total = getattr(stats, "total_vector_count", None)
+                dimension = getattr(stats, "dimension", None)
+                fullness = getattr(stats, "index_fullness", None)
+                namespaces = getattr(stats, "namespaces", {})
             return {
-                "total_vector_count": stats.total_vector_count,
-                "dimension": stats.dimension,
-                "index_fullness": stats.index_fullness,
-                "namespaces": stats.namespaces
+                "total_vector_count": total,
+                "dimension": dimension,
+                "index_fullness": fullness,
+                "namespaces": namespaces
             }
         except Exception as e:
             print(f"Error getting index stats: {e}")

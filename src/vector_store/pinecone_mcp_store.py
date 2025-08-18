@@ -1,6 +1,5 @@
 from typing import List, Dict, Any, Optional
 import asyncio
-from sentence_transformers import SentenceTransformer
 
 try:
     from .base import VectorStore, Document, SearchResult, SearchRequest, SearchType
@@ -16,8 +15,9 @@ class PineconeMCPStore(VectorStore):
         embedding_model: str = "all-MiniLM-L6-v2",
         default_namespace: str = "default"
     ):
-        self.embedding_model = SentenceTransformer(embedding_model)
-        self._embedding_dimension = self.embedding_model.get_sentence_embedding_dimension()
+        # MCP-backed store uses integrated inference; avoid local model load
+        self.embedding_model = None
+        self._embedding_dimension = 768  # typical MiniLM dimension; MCP services handle embeddings
         self.default_namespace = default_namespace
     
     def _encode_text(self, text: str) -> List[float]:

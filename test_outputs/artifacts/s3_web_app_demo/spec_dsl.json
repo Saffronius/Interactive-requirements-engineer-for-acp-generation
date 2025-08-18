@@ -1,0 +1,28 @@
+{
+  "version": "0.1",
+  "who": {
+    "principal_ref": "PRINCIPAL_ARN"
+  },
+  "scope": {
+    "accounts": [
+      "ACCOUNT_ID"
+    ],
+    "regions": [
+      "us-east-1"
+    ]
+  },
+  "capabilities": [
+    {
+      "name": "s3_read_access",
+      "service": "s3",
+      "resources": [],
+      "evidence": [],
+      "mode": "read_only",
+      "actions": null,
+      "components": null,
+      "conditions": []
+    }
+  ],
+  "must_never": null,
+  "notes": null
+}

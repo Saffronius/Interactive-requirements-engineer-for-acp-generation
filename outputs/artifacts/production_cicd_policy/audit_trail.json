@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "created_at": "2025-08-17T22:06:30.623975",
+    "original_prompt": "Create a policy for our CI/CD pipeline that needs to deploy Lambda functions, update API Gateway configurations, read deployment artifacts from S3 bucket prod-deployments, and decrypt KMS keys for secrets management. The pipeline runs from our corporate network 10.0.0.0/8 and should only work during business hours 9AM-6PM EST. Must require MFA and block any write access to production databases.",
+    "session_duration": "N/A"
+  },
+  "extraction_metrics": {
+    "confidence": 0.85,
+    "capabilities_extracted": 4,
+    "restrictions_extracted": 1,
+    "evidence_citations": 3
+  },
+  "generation_metrics": {
+    "confidence": 1.0,
+    "baseline_statements": 0,
+    "candidate_statements": 2
+  },
+  "validation_results": {
+    "spec_dsl_valid": true,
+    "baseline_generated": false,
+    "candidate_generated": true
+  },
+  "quality_metrics": {
+    "policy_complexity_baseline": 0,
+    "policy_complexity_candidate": 9,
+    "alignment_score": 0.0
+  }
+}

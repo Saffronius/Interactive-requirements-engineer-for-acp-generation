@@ -29,6 +29,17 @@ import sys
 import os
 from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Add src to path for new modules
+import sys
+from pathlib import Path
+src_path = Path(__file__).parent.parent / "src"
+sys.path.insert(0, str(src_path))
 
 try:
     import openai
@@ -36,6 +47,15 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
     print("⚠️  OpenAI not installed. Install with: pip install openai")
+
+# Import new architecture modules
+from policy_types import (
+    SpecDSL, ReadBack, PolicyArtifacts, IntentExtractionResult,
+    spec_dsl_to_json, DSLValidator
+)
+from intent_extractor import IntentExtractor
+from canonizer import Canonizer
+from artifact_saver import ArtifactSaver
 
 @dataclass
 class PromptEnhancement:
@@ -821,6 +841,100 @@ Generate a complete IAM policy that fulfills this requirement securely and follo
         
         return enhancement, context, generated_policy
     
+    def generate_policy_artifacts(self, user_prompt: str) -> Tuple[PolicyArtifacts, List[Dict[str, Any]]]:
+        """
+        NEW: Generate all four policy artifacts using the updated architecture.
+        
+        Returns:
+        - ReadBack: Human-readable summary
+        - SpecDSL: Machine-readable intent with provenance
+        - Baseline Policy: Deterministic IAM policy from canonizer
+        - Candidate Policy: LLM-generated policy
+        """
+        print("🚀 NEW: Four-Artifact Policy Generation Pipeline")
+        print("=" * 60)
+        
+        # Step 1: Search vector databases for context
+        print("📋 Gathering AWS documentation context...")
+        concept_results = self._search_with_reranking(
+            user_prompt, self.fine_grained_index, top_k=20, top_n=8
+        )
+        action_query = f"IAM actions permissions {user_prompt}"
+        action_results = self._search_index(
+            action_query, self.fine_grained_index, top_k=10, search_type="hybrid"
+        )
+        
+        # Combine and deduplicate RAG context
+        all_results = concept_results + action_results
+        seen_texts = set()
+        unique_results = []
+        for result in all_results:
+            text_snippet = result.get("text", "")[:100]
+            if text_snippet not in seen_texts:
+                seen_texts.add(text_snippet)
+                unique_results.append(result)
+        
+        rag_context = unique_results[:15]  # Top 15 most relevant
+        
+        # Step 2: Extract structured intent (ReadBack + SpecDSL)
+        print("🔍 Extracting structured intent with evidence...")
+        intent_extractor = IntentExtractor(self.openai_client)
+        intent_result = intent_extractor.extract_intent(user_prompt, rag_context)
+        
+        print(f"✅ Intent extraction complete (confidence: {intent_result.confidence_score:.1%})")
+        
+        # Step 3: Generate baseline policy from SpecDSL
+        print("⚙️  Generating baseline policy from intent specification...")
+        try:
+            # Validate SpecDSL first
+            validation_errors = DSLValidator.validate(intent_result.spec_dsl)
+            if validation_errors:
+                print(f"⚠️  SpecDSL validation warnings: {'; '.join(validation_errors[:3])}")
+            
+            baseline_policy = Canonizer.canonize(intent_result.spec_dsl)
+            print("✅ Baseline policy generated successfully")
+        except Exception as e:
+            print(f"❌ Baseline policy generation failed: {e}")
+            baseline_policy = {"Version": "2012-10-17", "Statement": []}
+        
+        # Step 4: Generate candidate policy using existing LLM generator
+        print("🧠 Generating candidate policy with LLM...")
+        candidate_policy = None
+        generation_confidence = 0.0
+        
+        if self.openai_client:
+            # Use existing method but extract just the policy JSON
+            enhancement, context = self.research_policy_request(user_prompt)
+            generated_policy = self.generate_iam_policy(enhancement, context)
+            
+            if generated_policy:
+                candidate_policy = generated_policy.policy_json
+                generation_confidence = generated_policy.confidence_score
+                print(f"✅ Candidate policy generated (confidence: {generation_confidence:.1%})")
+            else:
+                print("❌ Candidate policy generation failed")
+                candidate_policy = {"Version": "2012-10-17", "Statement": []}
+        else:
+            print("⚠️  OpenAI not available - using baseline as candidate")
+            candidate_policy = baseline_policy
+            generation_confidence = intent_result.confidence_score
+        
+        # Step 5: Package all artifacts
+        artifacts = PolicyArtifacts(
+            read_back=intent_result.read_back,
+            spec_dsl=intent_result.spec_dsl,
+            baseline_policy=baseline_policy,
+            candidate_policy=candidate_policy,
+            extraction_confidence=intent_result.confidence_score,
+            generation_confidence=generation_confidence
+        )
+        
+        print(f"\n✅ All artifacts generated successfully!")
+        print(f"   Intent extraction: {intent_result.confidence_score:.1%} confidence")
+        print(f"   Policy generation: {generation_confidence:.1%} confidence")
+        
+        return artifacts, rag_context
+    
     def display_results(self, enhancement: PromptEnhancement, context: PolicyGenerationContext):
         """Display comprehensive results for the user."""
         print("\n" + "=" * 60)
@@ -890,6 +1004,157 @@ Generate a complete IAM policy that fulfills this requirement securely and follo
                 print(f"   {i}. {suggestion}")
         
         print(f"\n✅ Policy Ready for Review and Testing")
+    
+    def display_policy_artifacts(self, artifacts: PolicyArtifacts):
+        """Display all four policy artifacts in a structured format."""
+        print("\n" + "=" * 80)
+        print("📋 FOUR-ARTIFACT POLICY ANALYSIS")
+        print("=" * 80)
+        
+        # 1. Read-Back (Human Summary)
+        print("\n🔍 1. READ-BACK (Human Summary)")
+        print("-" * 40)
+        print(f"📝 Summary: {artifacts.read_back.summary}")
+        
+        if artifacts.read_back.bullets:
+            print(f"\n📌 Key Points:")
+            for bullet in artifacts.read_back.bullets:
+                print(f"  • {bullet}")
+        
+        if artifacts.read_back.assumptions:
+            print(f"\n⚠️  Assumptions:")
+            for assumption in artifacts.read_back.assumptions:
+                print(f"  • {assumption}")
+        
+        if artifacts.read_back.risk_callouts:
+            print(f"\n🚨 Risk Callouts:")
+            for risk in artifacts.read_back.risk_callouts:
+                print(f"  • {risk}")
+        
+        print(f"\n📊 Extraction Confidence: {artifacts.extraction_confidence:.1%}")
+        
+        # 2. Spec DSL (Machine Intent)
+        print(f"\n🏗️  2. SPEC DSL (Machine Intent with Evidence)")
+        print("-" * 50)
+        print(f"📋 Version: {artifacts.spec_dsl.version}")
+        print(f"👤 Principal: {artifacts.spec_dsl.who.get('principal_ref', 'Not specified')}")
+        print(f"🌐 Scope: {len(artifacts.spec_dsl.scope.get('accounts', []))} accounts, {len(artifacts.spec_dsl.scope.get('regions', []))} regions")
+        
+        print(f"\n💡 Capabilities ({len(artifacts.spec_dsl.capabilities)}):")
+        for i, cap in enumerate(artifacts.spec_dsl.capabilities, 1):
+            mode_info = f" ({cap.mode})" if cap.mode else ""
+            print(f"  {i}. {cap.name} - {cap.service}{mode_info}")
+            print(f"     Resources: {len(cap.resources)} ARNs")
+            if cap.conditions:
+                print(f"     Conditions: {len(cap.conditions)} rules")
+            print(f"     Evidence: {len(cap.evidence)} citations (avg confidence: {sum(e.confidence for e in cap.evidence) / len(cap.evidence):.0f}%)" if cap.evidence else "     Evidence: No citations")
+        
+        if artifacts.spec_dsl.must_never:
+            print(f"\n🚫 Restrictions ({len(artifacts.spec_dsl.must_never)}):")
+            for restriction in artifacts.spec_dsl.must_never:
+                print(f"  • {restriction.name}: {restriction.rationale}")
+        
+        # 3. Baseline Policy (Deterministic)
+        print(f"\n⚙️  3. BASELINE POLICY (Deterministic from DSL)")
+        print("-" * 50)
+        baseline_statements = artifacts.baseline_policy.get("Statement", [])
+        print(f"📄 IAM Policy with {len(baseline_statements)} statements")
+        
+        for i, stmt in enumerate(baseline_statements, 1):
+            effect = stmt.get("Effect", "Unknown")
+            actions = stmt.get("Action", [])
+            if isinstance(actions, str):
+                actions = [actions]
+            print(f"  {i}. {stmt.get('Sid', f'Statement{i}')} ({effect})")
+            print(f"     Actions: {len(actions)} ({', '.join(actions[:3])}{'...' if len(actions) > 3 else ''})")
+            resources = stmt.get("Resource", [])
+            if isinstance(resources, str):
+                resources = [resources]
+            print(f"     Resources: {len(resources)} ARNs")
+            if "Condition" in stmt:
+                conditions = stmt["Condition"]
+                print(f"     Conditions: {sum(len(v) if isinstance(v, dict) else 1 for v in conditions.values())} rules")
+        
+        # 4. Candidate Policy (LLM Generated)
+        print(f"\n🧠 4. CANDIDATE POLICY (LLM Generated)")
+        print("-" * 45)
+        candidate_statements = artifacts.candidate_policy.get("Statement", [])
+        print(f"📄 IAM Policy with {len(candidate_statements)} statements")
+        print(f"📊 Generation Confidence: {artifacts.generation_confidence:.1%}")
+        
+        for i, stmt in enumerate(candidate_statements, 1):
+            effect = stmt.get("Effect", "Unknown")
+            actions = stmt.get("Action", [])
+            if isinstance(actions, str):
+                actions = [actions]
+            print(f"  {i}. {stmt.get('Sid', f'Statement{i}')} ({effect})")
+            print(f"     Actions: {len(actions)} ({', '.join(actions[:3])}{'...' if len(actions) > 3 else ''})")
+            resources = stmt.get("Resource", [])
+            if isinstance(resources, str):
+                resources = [resources]
+            print(f"     Resources: {len(resources)} ARNs")
+            if "Condition" in stmt:
+                conditions = stmt["Condition"]
+                print(f"     Conditions: {sum(len(v) if isinstance(v, dict) else 1 for v in conditions.values())} rules")
+        
+        # 5. Comparison Summary
+        print(f"\n📊 POLICY COMPARISON")
+        print("-" * 25)
+        baseline_stmt_count = len(baseline_statements)
+        candidate_stmt_count = len(candidate_statements)
+        print(f"Baseline statements: {baseline_stmt_count}")
+        print(f"Candidate statements: {candidate_stmt_count}")
+        
+        if baseline_stmt_count == candidate_stmt_count:
+            print("✅ Statement counts match")
+        else:
+            print(f"⚠️  Statement count difference: {abs(baseline_stmt_count - candidate_stmt_count)}")
+        
+        print(f"\n🎯 RECOMMENDATIONS")
+        print("-" * 20)
+        if artifacts.extraction_confidence < 0.8:
+            print("• ⚠️  Low extraction confidence - review intent interpretation")
+        if artifacts.generation_confidence < 0.8:
+            print("• ⚠️  Low generation confidence - review LLM policy output")
+        if baseline_stmt_count != candidate_stmt_count:
+            print("• 🔍 Policy structure differs - compare baseline vs candidate carefully")
+        if not artifacts.spec_dsl.must_never:
+            print("• 🛡️  Consider adding explicit deny statements for security")
+        
+        print(f"\n✅ Four-artifact analysis complete!")
+    
+    def save_policy_artifacts(
+        self, 
+        artifacts: PolicyArtifacts, 
+        rag_context: List[Dict[str, Any]], 
+        original_prompt: str,
+        custom_path: Optional[str] = None,
+        output_dir: str = "outputs"
+    ) -> Dict[str, str]:
+        """
+        Save all policy artifacts using the comprehensive ArtifactSaver.
+        
+        Returns:
+            Dictionary with paths to all saved files
+        """
+        print(f"\n💾 Saving policy artifacts...")
+        
+        saver = ArtifactSaver(base_output_dir=output_dir)
+        saved_files = saver.save_artifacts(
+            artifacts=artifacts,
+            original_prompt=original_prompt,
+            rag_context=rag_context,
+            custom_name=custom_path
+        )
+        
+        print(f"✅ Artifacts saved successfully!")
+        print(f"📁 Session directory: {Path(saved_files['master']).parent}")
+        print(f"📄 Files created:")
+        for file_type, file_path in saved_files.items():
+            file_name = Path(file_path).name
+            print(f"   • {file_type}: {file_name}")
+        
+        return saved_files
 
     def save_generated_policy(self, generated_policy: GeneratedPolicy, 
                              enhancement: PromptEnhancement, 
@@ -1003,6 +1268,12 @@ def main():
     parser.add_argument("--no-save", action="store_true", help="Don't auto-save generated policies")
     parser.add_argument("--save-format", choices=["json", "markdown", "both"], default="both", 
                        help="Format for saving policies (default: both)")
+    parser.add_argument("--artifacts", action="store_true", 
+                       help="NEW: Use four-artifact mode (ReadBack, SpecDSL, Baseline, Candidate)")
+    parser.add_argument("--output-dir", default="outputs", 
+                       help="Output directory for artifacts (default: outputs)")
+    parser.add_argument("--session-name", 
+                       help="Custom session name for artifact storage")
     
     args = parser.parse_args()
     
@@ -1041,7 +1312,27 @@ def main():
                 agent.save_generated_policy(generated_policy, enhancement, args.save, args.save_format)
         
     elif args.prompt:
-        if not args.no_llm and agent.openai_client:
+        if args.artifacts:
+            # NEW: Four-artifact mode
+            print("🚀 NEW: FOUR-ARTIFACT MODE")
+            artifacts, rag_context = agent.generate_policy_artifacts(args.prompt)
+            agent.display_policy_artifacts(artifacts)
+            
+            # Save artifacts using the new comprehensive system
+            if not args.no_save:
+                saved_files = agent.save_policy_artifacts(
+                    artifacts=artifacts,
+                    rag_context=rag_context,
+                    original_prompt=args.prompt,
+                    custom_path=args.session_name,
+                    output_dir=args.output_dir
+                )
+                print(f"\n🎯 To review results:")
+                session_dir = Path(saved_files['master']).parent
+                print(f"   cd {session_dir}")
+                print(f"   cat README.md")
+                
+        elif not args.no_llm and agent.openai_client:
             print("🚀 FULL LLM-ENHANCED PIPELINE")
             enhancement, context, generated_policy = agent.complete_policy_generation(args.prompt)
             agent.display_results(enhancement, context)

@@ -1,0 +1,244 @@
+{
+  "session_id": "a8899b98b228",
+  "created_at": "2025-08-16T23:15:04.483797",
+  "rag_context": {
+    "total_chunks": 15,
+    "chunks": [
+      {
+        "index": 0,
+        "text": "and write access to Amazon S3 bucket objects This example shows how you might create an identity-based policy that allows Read and Write access to objects in a speci\ufb01c Amazon S3 bucket. This policy grants the permissions necessary to complete this action programmatically from the AWS API or AWS CLI. To use this policy, replace the italicized placeholder text in the example policy with your own information. Then, follow the directions in create a policy or edit a policy. Example policies 969 AWS Identity and Access Management User Guide The s3:*Object action uses a wildcard as part of the action name. The AllObjectActions statement allows the GetObject , DeleteObject , PutObject , and any other Amazon S3 action that ends with the word \"Object\". { \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"ListObjectsInBucket\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListBucket\"], \"Resource\": [\"arn:aws:s3::: bucket-name \"] }, { \"Sid\": \"AllObjectActions\", \"Effect\": \"Allow\", \"Action\": \"s3:*Object\", \"Resou",
+        "score": 0.579364598,
+        "metadata": {
+          "char_count": 2787.0,
+          "chunk_id": 770.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.234369",
+          "word_count": 400.0
+        },
+        "text_hash": "c7215722"
+      },
+      {
+        "index": 1,
+        "text": "Amazon S3 buckets, AWS KMS keys, IAM roles, Amazon SQS queues and Secrets Manager secrets. You can preview access by providing proposed permissions for an existing resource you own or a new resource you want to deploy. To preview external access to your resource, you must have an active account analyzer for the account and region of the resource. You must also have the permissions required to use IAM Access Analyzer and preview access. For more information on enabling IAM Access Analyzer and permissions required, see Getting started with AWS Identity and Access Management Access Analyzer. To preview access for a resource, you can use the CreateAccessPreview operation and provide the analyzer ARN and the access control con\ufb01guration for the resource. The service returns the unique ID for the access preview, which you can use to check the status of the access preview with the GetAccessPreview operation. When the status is Completed , you can use the ListAccessPreviewFindings operation to ",
+        "score": 0.576101601,
+        "metadata": {
+          "char_count": 2555.0,
+          "chunk_id": 1532.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.267279",
+          "word_count": 400.0
+        },
+        "text_hash": "cac7188a"
+      },
+      {
+        "index": 2,
+        "text": "S3 in the Amazon Simple Storage Service User Guide. In some cases, it may be best to use roles for cross-account access to Amazon S3. For more information, see the example walkthroughs in the Amazon Simple Storage Service User Guide. \u2022Amazon Simple Noti\ufb01cation Service (Amazon SNS) topics \u2014 For more information, go to Example cases for Amazon SNS access control in the Amazon Simple Noti\ufb01cation Service Developer Guide . \u2022Amazon Simple Queue Service (Amazon SQS) queues \u2013 For more information, go to Appendix: The Access Policy Language in the Amazon Simple Queue Service Developer Guide. Resource-based policies to delegate AWS permissions If a resource grants permissions to principals in your account, you can then delegate those permissions to speci\ufb01c IAM identities. Identities are users, groups of users, or roles in your account. You delegate permissions by attaching a policy to the identity. You can grant up to the maximum permissions that are allowed by the resource-owning account. Impor",
+        "score": 0.575598896,
+        "metadata": {
+          "char_count": 2609.0,
+          "chunk_id": 718.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.233123",
+          "word_count": 400.0
+        },
+        "text_hash": "f5c51353"
+      },
+      {
+        "index": 3,
+        "text": "make calls to AWS Key Management Service to decrypt an object when SSE-KMS was used to encrypt it. When downloading an SSE-KMS encrypted object, a role named data-reader calls GetObject on the object against Amazon S3, and does not call AWS Forward access sessions 892 AWS Identity and Access Management User Guide KMS directly. After receiving the GetObject request and authorizing data-reader, Amazon S3 then makes a FAS request to AWS KMS in order to decrypt the Amazon S3 object. When KMS receives the FAS request it checks the permissions of the role and only authorizes the decryption request if data-reader has the correct permissions on the KMS key. The requests to both Amazon S3 and AWS KMS are authorized using the role\u2019s permissions and is only successful if data-reader has permissions to both the Amazon S3 object and the AWS KMS key. Note Additional FAS requests can be made by services who have received a FAS request. In such cases, the requesting principal must have permissions for",
+        "score": 0.569291055,
+        "metadata": {
+          "char_count": 2481.0,
+          "chunk_id": 721.0,
+          "chunk_size": 400.0,
+          "content_type": "condition_reference",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.233232",
+          "word_count": 400.0
+        },
+        "text_hash": "8c69eef2"
+      },
+      {
+        "index": 4,
+        "text": "is allowed access to resource in the current account. To learn more, see AWS global condition context keys. \u2022KMS Key ID \u2013 To \ufb01lter by KMS key ID, type all or part of the key ID for the KMS key speci\ufb01ed as a condition for AWS KMS-encrypted Amazon S3 object access in your current account. \u2022Session Mode \u2013 To \ufb01lter by session mode for Amazon S3 directory buckets (ReadOnly or ReadWrite , type all or part of the session mode. To learn more, see CreateSession in the Amazon Simple Storage Service API Reference. \u2022Google Audience \u2013 To \ufb01lter by Google Audience, type all or part of the Google application ID speci\ufb01ed as a condition for IAM role access in your current account. To learn more, see IAM and AWS STS condition context keys. \u2022Cognito Audience \u2013 To \ufb01lter by Amazon Cognito audience, type all or part of the Amazon Cognito identity pool ID speci\ufb01ed as a condition for IAM role access in your current account. To learn more, see IAM and AWS STS condition context keys. \u2022Caller Account \u2013 The AWS ac",
+        "score": 0.556093752,
+        "metadata": {
+          "char_count": 2223.0,
+          "chunk_id": 1486.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.265520",
+          "word_count": 400.0
+        },
+        "text_hash": "b901e971"
+      },
+      {
+        "index": 5,
+        "text": "Amazon SQS queues and Secrets Manager secrets by providing proposed permissions for your resource. Preview access 2842 AWS Identity and Access Management User Guide Topics \u2022Previewing access in Amazon S3 console \u2022Previewing access with IAM Access Analyzer APIs Previewing access in Amazon S3 console After you complete your bucket policy in the Amazon S3 console you have the option to preview public and cross-account access to your Amazon S3 bucket. You can validate that your policy changes grant only intended external access before you choose Save changes. This optional step enables you to preview AWS Identity and Access Management Access Analyzer \ufb01ndings for your bucket. You can validate whether the policy change introduces new \ufb01ndings or resolves existing \ufb01ndings for external access. You can skip this validation step and save your Amazon S3 bucket policy at any time. To preview external access to your bucket, you must have an active account analyzer in your bucket\u2019s region with the ac",
+        "score": 0.555001199,
+        "metadata": {
+          "char_count": 2455.0,
+          "chunk_id": 1530.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.267178",
+          "word_count": 400.0
+        },
+        "text_hash": "eb398447"
+      },
+      {
+        "index": 6,
+        "text": "perform with that service. For example, the list of actions for Amazon S3 can be found at Specifying Permissions in a Policy in the Amazon Simple Storage Service User Guide, the list of actions for Amazon EC2 can be found in the Amazon EC2 API Reference, and the list of actions for AWS Identity and Access Management can be found in the IAM API Reference. To \ufb01nd the list of actions for other services, consult the API reference documentation for the service. AWS also provides service reference information in JSON format to streamline the automation of policy management work\ufb02ows. With the service reference information, you can access available actions, resources, and condition keys across AWS services from machine-readable \ufb01les. For more information, see Simpli\ufb01ed AWS service information for programmatic access in the Service Authorization Reference. You specify a value using a service namespace as an action pre\ufb01x (iam, ec2, sqs, sns, s3, etc.) followed by the name of the action to allow ",
+        "score": 0.550468206,
+        "metadata": {
+          "char_count": 2630.0,
+          "chunk_id": 1849.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.282614",
+          "word_count": 400.0
+        },
+        "text_hash": "b47e03ce"
+      },
+      {
+        "index": 7,
+        "text": "access to Amazon S3 resources outside of your account except AWS Data Exchange. (View this policy.) Example policies: AWS Data Pipeline \u2022Denies access to pipelines that a user did not create (View this policy.) Example policies 896 AWS Identity and Access Management User Guide Example policies: Amazon DynamoDB \u2022Allows access to a speci\ufb01c Amazon DynamoDB table (View this policy.) \u2022Allows access to speci\ufb01c Amazon DynamoDB attributes (View this policy.) \u2022Allows item-level access to Amazon DynamoDB based on an Amazon Cognito ID (View this policy.) Example policies: Amazon EC2 \u2022Allows attaching or detaching Amazon EBS volumes to Amazon EC2 instances based on tags (View this policy.) \u2022Allows launching Amazon EC2 instances in a speci\ufb01c subnet, programmatically and in the console (View this policy.) \u2022Allows managing Amazon EC2 security groups associated with a speci\ufb01c VPC, programmatically and in the console (View this policy.) \u2022Allows starting or stopping Amazon EC2 instances a user has tagge",
+        "score": 0.548404872,
+        "metadata": {
+          "char_count": 2628.0,
+          "chunk_id": 724.0,
+          "chunk_size": 400.0,
+          "content_type": "best_practice",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.233336",
+          "word_count": 400.0
+        },
+        "text_hash": "f12d8bc9"
+      },
+      {
+        "index": 8,
+        "text": "the Originating account. However, you should use a valid account ID if you use this scenario in your test environment. Create a role in the Destination Account 91 AWS Identity and Access Management User Guide To create a role in the Destination account that can be used by the Originating account 1. Sign in to the AWS Management Console as an administrator of the Destination account, and open the IAM console. 2. Before creating the role, prepare the managed policy that de\ufb01nes the permissions for the role requirements. You attach this policy to the role in a later step. You want to set read and write access to the amzn-s3-demo-bucket-shared-container bucket. Although AWS provides some Amazon S3 managed policies, there isn't one that provides read and write access to a single Amazon S3 bucket. You can create your own policy instead. In the navigation pane, choose Policies and then choose Create policy. 3. Choose the JSON tab and copy the text from the following JSON policy document. Paste",
+        "score": 0.546085477,
+        "metadata": {
+          "char_count": 2637.0,
+          "chunk_id": 96.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.209717",
+          "word_count": 400.0
+        },
+        "text_hash": "af5f5c17"
+      },
+      {
+        "index": 9,
+        "text": "it, a role can also be attached to an Amazon EC2 instance currently running. To learn how to attach a role to a running instance, see IAM Roles for Amazon EC2. Topics \u2022How do roles for Amazon EC2 instances work? \u2022Permissions required for using roles with Amazon EC2 Methods to assume a role 609 AWS Identity and Access Management User Guide \u2022How do I get started? \u2022Related information How do roles for Amazon EC2 instances work? In the following \ufb01gure, a developer runs an application on an Amazon EC2 instance that requires access to the S3 bucket named amzn-s3-demo-bucket-photos . An administrator creates the Get-pics service role and attaches the role to the Amazon EC2 instance. The role includes a permissions policy that grants read-only access to the speci\ufb01ed S3 bucket. It also includes a trust policy that allows the Amazon EC2 instance to assume the role and retrieve the temporary credentials. When the application runs on the instance, it can use the role's temporary credentials to acc",
+        "score": 0.54482168,
+        "metadata": {
+          "char_count": 2464.0,
+          "chunk_id": 484.0,
+          "chunk_size": 400.0,
+          "content_type": "best_practice",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.224885",
+          "word_count": 400.0
+        },
+        "text_hash": "7d7fad8e"
+      },
+      {
+        "index": 10,
+        "text": "in the Originating account and access resources there. From time to time, a developer must update the shared data in the Destination account. The developers store this data in an Amazon S3 bucket called amzn-s3-demo-bucket- shared-container . At the end of this tutorial, you have the following: \u2022Users in the Originating account (the trusted account) allowed to assume a speci\ufb01c role in the Destination account. \u2022A role in the Destination account (the trusting account) allowed to access a speci\ufb01c Amazon S3 bucket. \u2022The amzn-s3-demo-bucket-shared-container bucket in the Destination account. Developers can use the role in the AWS Management Console to access the amzn-s3-demo- bucket-shared-container bucket in the Destination account. They can also access the bucket by using API calls authenticated by temporary credentials provided by the role. Similar attempts by an Analyst to use the role fail. This work\ufb02ow has three basic steps: Create a role in the Destination Account First, you use the ",
+        "score": 0.543608069,
+        "metadata": {
+          "char_count": 2541.0,
+          "chunk_id": 93.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.209626",
+          "word_count": 400.0
+        },
+        "text_hash": "dc24f121"
+      },
+      {
+        "index": 11,
+        "text": "requests made from one account to another, the requester in Account A must have an identity- based policy that allows them to make a request to the resource in Account B . Also, the resource-based policy in Account B must allow the requester in Account A to access the resource. There must be policies in both accounts that allow the operation, otherwise the request fails. For more information about using resource-based policies for cross-account access, see Cross account resource access in IAM. A user who has speci\ufb01c permissions might request a resource that also has a permissions policy attached to it. In that case, AWS evaluates both sets of permissions when determining whether to grant access to the resource. For information about how policies are evaluated, see Policy evaluation logic . Note Amazon S3 supports identity-based policies and resource-based policies (referred to as bucket policies ). In addition, Amazon S3 supports a permission mechanism known as an access control list (",
+        "score": 0.541361153,
+        "metadata": {
+          "char_count": 2441.0,
+          "chunk_id": 696.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.232539",
+          "word_count": 400.0
+        },
+        "text_hash": "0195ab79"
+      },
+      {
+        "index": 12,
+        "text": "(View this policy.) \u2022Allows tag owners full access to Amazon RDS resources that they have tagged (View this policy.) Example policies: Amazon S3 \u2022Allows an Amazon Cognito user to access objects in their own Amazon S3 bucket (View this policy.) \u2022Allows a user with temporary credentials to access their own home directory in Amazon S3, programmatically and in the console (View this policy.) \u2022Allows full S3 access, but explicitly denies access to the Production bucket if the administrator has not signed in using MFA within the last thirty minutes (View this policy.) \u2022Allows IAM users to access their own home directory in Amazon S3, programmatically and in the console (View this policy.) \u2022Allows a user to manage a single Amazon S3 bucket and denies every other AWS action and resource (View this policy.) \u2022Allows Read and Write access to a speci\ufb01c Amazon S3 bucket (View this policy.) \u2022Allows Read and Write access to a speci\ufb01c Amazon S3 bucket, programmatically and in the console (View this po",
+        "score": 0.540482104,
+        "metadata": {
+          "char_count": 2581.0,
+          "chunk_id": 726.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.233408",
+          "word_count": 400.0
+        },
+        "text_hash": "1fe3e80a"
+      },
+      {
+        "index": 13,
+        "text": "<summary> /// A class to perform Amazon Simple Storage Service (Amazon S3) actions for /// the IAM Basics scenario. /// </summary> public class S3Wrapper { private IAmazonS3 _s3Service; private IAmazonSecurityTokenService _stsService; /// <summary> /// Constructor for the S3Wrapper class. /// </summary> /// <param name=\"s3Service\">An Amazon S3 client object.</param> /// <param name=\"stsService\">An AWS Security Token Service (AWS STS) /// client object.</param> public S3Wrapper(IAmazonS3 s3Service, IAmazonSecurityTokenService stsService) { _s3Service = s3Service; _stsService = stsService; } /// <summary> /// Assumes an AWS Identity and Access Management (IAM) role that allows Basics 1686 AWS Identity and Access Management User Guide /// Amazon S3 access for the current session. /// </summary> /// <param name=\"roleSession\">A string representing the current session.</ param> /// <param name=\"roleToAssume\">The name of the IAM role to assume.</param> /// <returns>Credentials for the newly a",
+        "score": 0.537890136,
+        "metadata": {
+          "char_count": 3137.0,
+          "chunk_id": 965.0,
+          "chunk_size": 400.0,
+          "content_type": "best_practice",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.245836",
+          "word_count": 400.0
+        },
+        "text_hash": "7e782810"
+      },
+      {
+        "index": 14,
+        "text": "retrieved by // invoking assumeRole. Region region = Region.US_EAST_1; S3Client s3 = S3Client.builder() .credentialsProvider( StaticCredentialsProvider.create(AwsSessionCredentials.create(key, secKey, secToken))) .region(region) .build(); System.out.println(\"Created a S3Client using temp credentials.\"); Methods to assume a role 568 AWS Identity and Access Management User Guide System.out.println(\"Listing objects in \" + bucketName); ListObjectsRequest listObjects = ListObjectsRequest.builder() .bucket(bucketName) .build(); ListObjectsResponse res = s3.listObjects(listObjects); List<S3Object> objects = res.contents(); for (S3Object myValue : objects) { System.out.println(\"The name of the key is \" + myValue.key()); System.out.println(\"The owner is \" + myValue.owner()); } } catch (StsException e) { System.err.println(e.getMessage()); System.exit(1); } } public static void deleteRole(IamClient iam, String roleName, String polArn) { try { // First the policy needs to be detached. DetachRoleP",
+        "score": 0.537050843,
+        "metadata": {
+          "char_count": 3718.0,
+          "chunk_id": 466.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.224301",
+          "word_count": 400.0
+        },
+        "text_hash": "b141d6e8"
+      }
+    ]
+  },
+  "summary": {
+    "avg_score": 0.5534415760666666,
+    "content_types": [
+      "general",
+      "best_practice",
+      "condition_reference",
+      "policy_example"
+    ],
+    "total_text_length": 39887
+  }
+}

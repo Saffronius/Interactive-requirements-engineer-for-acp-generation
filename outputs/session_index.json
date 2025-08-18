@@ -1,0 +1,14 @@
+{
+  "sessions": [
+    {
+      "session_id": "736f4844d1b2",
+      "session_name": "production_cicd_policy",
+      "created_at": "2025-08-17T22:06:30.624621",
+      "prompt": "Create a policy for our CI/CD pipeline that needs to deploy Lambda functions, update API Gateway con...",
+      "extraction_confidence": 0.85,
+      "generation_confidence": 1.0,
+      "capabilities": 4,
+      "restrictions": 1
+    }
+  ]
+}

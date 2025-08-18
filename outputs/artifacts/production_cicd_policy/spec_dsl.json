@@ -1,0 +1,203 @@
+{
+  "version": "0.1",
+  "who": {
+    "principal_ref": "PRINCIPAL_ARN"
+  },
+  "scope": {
+    "accounts": [
+      "ACCOUNT_ID"
+    ],
+    "regions": [
+      "us-east-1"
+    ]
+  },
+  "capabilities": [
+    {
+      "name": "lambda_deploy",
+      "service": "lambda",
+      "resources": [],
+      "evidence": [],
+      "mode": "write",
+      "actions": null,
+      "components": null,
+      "conditions": [
+        {
+          "key": "aws:MultiFactorAuthPresent",
+          "op": "Bool",
+          "value": "true",
+          "evidence": []
+        },
+        {
+          "key": "aws:SourceIp",
+          "op": "IpAddress",
+          "value": "10.0.0.0/8",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateGreaterThanEquals",
+          "value": "09:00",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateLessThan",
+          "value": "18:00",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "name": "api_gateway_update",
+      "service": "apigateway",
+      "resources": [],
+      "evidence": [],
+      "mode": "write",
+      "actions": null,
+      "components": null,
+      "conditions": [
+        {
+          "key": "aws:MultiFactorAuthPresent",
+          "op": "Bool",
+          "value": "true",
+          "evidence": []
+        },
+        {
+          "key": "aws:SourceIp",
+          "op": "IpAddress",
+          "value": "10.0.0.0/8",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateGreaterThanEquals",
+          "value": "09:00",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateLessThan",
+          "value": "18:00",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "name": "s3_read",
+      "service": "s3",
+      "resources": [
+        "arn:aws:s3:::prod-deployments/*"
+      ],
+      "evidence": [
+        {
+          "doc_url": "aws-iam-docs-chunk-0",
+          "confidence": 54,
+          "rationale": "ListBucket required for bucket enumeration",
+          "retrieved_at": "2025-08-17T22:04:56.881743",
+          "quote": "or edit a policy. This policy never allows programmatic access to the amzn-s3-demo-bucket bucket using long- term user access keys. This is accomplished using the aws:MultiFactorAuthAge condition key ",
+          "content_hash": null
+        },
+        {
+          "doc_url": "aws-iam-docs-chunk-0",
+          "confidence": 54,
+          "rationale": "GetObject required for object access",
+          "retrieved_at": "2025-08-17T22:04:56.881763",
+          "quote": "or edit a policy. This policy never allows programmatic access to the amzn-s3-demo-bucket bucket using long- term user access keys. This is accomplished using the aws:MultiFactorAuthAge condition key ",
+          "content_hash": null
+        },
+        {
+          "doc_url": "aws-iam-docs-chunk-3",
+          "confidence": 52,
+          "rationale": "GetObject required for object access",
+          "retrieved_at": "2025-08-17T22:04:56.881901",
+          "quote": "key grant is issued to an AWS service, AWS KMS uses the encryption context associated with the resource, and the key grant to help protect against cross-service confused deputy issues. Please see the ",
+          "content_hash": null
+        }
+      ],
+      "mode": "read_only",
+      "actions": null,
+      "components": null,
+      "conditions": [
+        {
+          "key": "aws:MultiFactorAuthPresent",
+          "op": "Bool",
+          "value": "true",
+          "evidence": []
+        },
+        {
+          "key": "aws:SourceIp",
+          "op": "IpAddress",
+          "value": "10.0.0.0/8",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateGreaterThanEquals",
+          "value": "09:00",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateLessThan",
+          "value": "18:00",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "name": "kms_decrypt",
+      "service": "kms",
+      "resources": [],
+      "evidence": [],
+      "mode": "read_only",
+      "actions": null,
+      "components": null,
+      "conditions": [
+        {
+          "key": "aws:MultiFactorAuthPresent",
+          "op": "Bool",
+          "value": "true",
+          "evidence": []
+        },
+        {
+          "key": "aws:SourceIp",
+          "op": "IpAddress",
+          "value": "10.0.0.0/8",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateGreaterThanEquals",
+          "value": "09:00",
+          "evidence": []
+        },
+        {
+          "key": "aws:CurrentTime",
+          "op": "DateLessThan",
+          "value": "18:00",
+          "evidence": []
+        }
+      ]
+    }
+  ],
+  "must_never": [
+    {
+      "name": "db_write_block",
+      "actions": [
+        "rds:Create*",
+        "rds:Modify*",
+        "rds:Delete*",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem"
+      ],
+      "resources": [
+        "arn:aws:rds:*:*:db:*",
+        "arn:aws:dynamodb:*:*:table/*"
+      ],
+      "rationale": "Prevent accidental modification of production databases",
+      "evidence": null
+    }
+  ],
+  "notes": null
+}

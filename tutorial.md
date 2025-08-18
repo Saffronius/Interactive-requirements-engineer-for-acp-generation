@@ -321,7 +321,30 @@ status = await agent.get_task_status(task_id)
 
 ## Real-World Applications
 
-### 1. Knowledge Base Search
+### 1. IAM Policy Generation (Our Main Use Case)
+
+**Scenario**: AWS IAM policy creation from natural language
+**Challenge**: Transform vague requirements into secure, production-ready policies
+**Solution**: Four-artifact generation with evidence tracking and comparison analysis
+
+```bash
+# User request: "S3 read access for web application"
+# System generates:
+# 1. ReadBack: Human-readable summary with assumptions
+# 2. SpecDSL: Machine-readable intent with evidence
+# 3. Baseline Policy: Deterministic safe policy
+# 4. Candidate Policy: LLM-enhanced policy
+
+python3 examples/iam_policy_agent.py "S3 read access for web application" --artifacts
+```
+
+**Key Benefits:**
+- **Evidence Tracking**: Every decision traced to AWS documentation
+- **Risk Assessment**: Automated comparison between safe baseline and enhanced candidate
+- **Audit Ready**: Complete provenance and confidence scoring
+- **Production Safe**: Always have a deterministic baseline to deploy
+
+### 2. Knowledge Base Search
 
 **Scenario**: Company documentation search
 **Challenge**: Employees can't find relevant information quickly
@@ -335,7 +358,7 @@ status = await agent.get_task_status(task_id)
 # - "login troubleshooting guide"
 ```
 
-### 2. E-commerce Product Search
+### 3. E-commerce Product Search
 
 **Scenario**: Online store product discovery
 **Challenge**: Customers use different terms than product descriptions
@@ -349,7 +372,7 @@ status = await agent.get_task_status(task_id)
 # - "cold weather apparel"
 ```
 
-### 3. Content Recommendation
+### 4. Content Recommendation
 
 **Scenario**: News article recommendations
 **Challenge**: Suggest related articles that readers will find interesting
@@ -363,7 +386,7 @@ status = await agent.get_task_status(task_id)
 # - "automotive industry trends"
 ```
 
-### 4. Customer Support
+### 5. Customer Support
 
 **Scenario**: Automated FAQ matching
 **Challenge**: Customer questions don't match exact FAQ wording
@@ -375,7 +398,7 @@ status = await agent.get_task_status(task_id)
 # Also finds: "Billing cycle modifications" and "Service cancellation policies"
 ```
 
-### 5. Research and Academia
+### 6. Research and Academia
 
 **Scenario**: Academic paper discovery
 **Challenge**: Finding relevant research across different terminology and domains

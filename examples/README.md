@@ -1,146 +1,162 @@
-# Vector Search Examples
+# Examples Directory
 
-This directory contains utility scripts and examples for using the vector search system.
+This directory contains examples and utilities for the IAM Policy Research Agent.
 
-## 🧹 Data Cleanup Tool (`cleanup_data.py`)
+## 🏗️ **Main Application**
 
-Remove test data from your Pinecone indexes before adding real content.
-
-### Usage:
+### **`iam_policy_agent.py`** - Four-Artifact Policy Generator
+The primary application that generates comprehensive IAM policy artifacts with complete auditability.
 
 ```bash
-# Make sure your API server is running
-python -m src.api &
+# Generate four artifacts with analysis
+python3 iam_policy_agent.py "S3 read access for web application" --artifacts
 
-# Run the cleanup tool
-python examples/cleanup_data.py
+# Custom session and output directory  
+python3 iam_policy_agent.py "Lambda execution role" --artifacts \
+  --session-name "lambda_prod" --output-dir "production_policies"
+
+# Legacy single-policy mode (for compatibility)
+python3 iam_policy_agent.py "EC2 read access"
 ```
 
-### Features:
-- ✅ Shows current backend and indexes
-- ✅ Switch between backends (Pinecone Direct, Pinecone MCP, Qdrant)
-- ✅ Delete specific test indexes
-- ✅ Interactive prompts for safety
+**Output:** Creates structured session directory with:
+- ReadBack (human summary)
+- SpecDSL (machine intent with evidence)
+- Baseline Policy (deterministic)
+- Candidate Policy (LLM-generated)
+- Policy comparison analysis
+- Evidence archive and audit trail
+
+## 📚 **Data Management**
+
+### **`pdf_ingestion.py`** - Process AWS Documentation
+Ingests new AWS documentation PDFs into the vector search system.
+
+```bash
+# Process new AWS documentation
+python3 pdf_ingestion.py --pdf-path /path/to/aws-guide.pdf
+
+# Batch process multiple PDFs
+python3 pdf_ingestion.py --directory /path/to/pdf-directory
+```
+
+### **`setup_iam_demo.py`** - Demo Setup
+Sets up demonstration data and examples for testing the system.
+
+```bash
+# Set up demo environment
+python3 setup_iam_demo.py
+```
+
+## 📖 **Documentation**
+
+### **`CHUNKING_STRATEGY.md`** - Documentation Strategy
+Explains the dual-chunking approach used for AWS documentation:
+- Fine-grained chunks (400 tokens) for concept discovery
+- Contextual chunks (1200 tokens) for complete examples
+
+## 🗂️ **File Organization**
+
+```
+examples/
+├── iam_policy_agent.py      # Main four-artifact generator
+├── pdf_ingestion.py         # AWS documentation processor
+├── setup_iam_demo.py        # Demo setup utility
+├── CHUNKING_STRATEGY.md     # Documentation approach
+└── README.md               # This file
+```
+
+## 🚀 **Quick Start Workflow**
+
+1. **Setup Documentation** (one-time):
+   ```bash
+   # Populate IAM indexes with AWS documentation
+   cd ..
+   python3 populate_iam_indexes.py
+   ```
+
+2. **Generate Policy Artifacts**:
+   ```bash
+   # Four-artifact mode (recommended)
+   python3 iam_policy_agent.py "your policy request" --artifacts
+   ```
+
+3. **Review Results**:
+   ```bash
+   # Navigate to generated session
+   cd ../outputs/artifacts/YYYYMMDD_HHMMSS_session_name
+   cat README.md  # Overview
+   cat policy_comparison.md  # Analysis
+   ```
+
+## 📊 **Example Outputs**
+
+### **Structured Session Directory:**
+```
+outputs/artifacts/session_name/
+├── artifacts.json            # Complete artifacts and metadata
+├── read_back.md             # Human-readable summary
+├── spec_dsl.json            # Machine-readable intent
+├── baseline_policy.json     # Deterministic policy
+├── candidate_policy.json    # LLM-generated policy
+├── evidence_archive.json    # RAG context and citations
+├── policy_comparison.md     # Side-by-side analysis
+├── audit_trail.json         # Confidence and quality metrics
+└── README.md               # Session guide
+```
+
+## 🔧 **Development & Testing**
+
+### **Running the Main Application:**
+```bash
+# Ensure API server is running (in separate terminal)
+python3 -m src.api
+
+# Generate artifacts with comprehensive analysis
+python3 iam_policy_agent.py "S3 read access" --artifacts --session-name "test_run"
+```
+
+### **Processing New Documentation:**
+```bash
+# Add new AWS service documentation
+python3 pdf_ingestion.py --pdf-path /path/to/new-service-guide.pdf --service "new-service"
+```
+
+### **Testing the System:**
+```bash
+# Test IAM documentation indexes
+cd ..
+python3 test_iam_indexes.py
+```
+
+## 📝 **Usage Patterns**
+
+### **Production Workflow:**
+```bash
+# 1. Generate comprehensive artifacts
+python3 iam_policy_agent.py "Production RDS access policy" --artifacts \
+  --session-name "prod_rds_v1" --output-dir "approved_policies"
+
+# 2. Review generated policies
+cd ../approved_policies/artifacts/prod_rds_v1
+cat policy_comparison.md  # Check alignment
+jq '.quality_metrics' audit_trail.json  # Check scores
+
+# 3. Deploy safer baseline or validated candidate
+aws iam create-policy --policy-name ProdRDSAccess \
+  --policy-document file://baseline_policy.json
+```
+
+### **Research & Development:**
+```bash
+# Generate for analysis without saving
+python3 iam_policy_agent.py "Complex cross-account S3 access" --artifacts --no-save
+
+# Compare different phrasings
+python3 iam_policy_agent.py "S3 read access" --artifacts --session-name "phrasing_test_1"
+python3 iam_policy_agent.py "S3 read-only permissions" --artifacts --session-name "phrasing_test_2"
+```
 
 ---
 
-## 📚 PDF Ingestion Tool (`pdf_ingestion.py`)
-
-Extract text from PDF documents and ingest them into Pinecone for semantic search.
-
-### Basic Usage:
-
-```bash
-# Ingest a PDF into the 'documents' index
-python examples/pdf_ingestion.py path/to/your/document.pdf
-
-# Specify custom index and namespace
-python examples/pdf_ingestion.py path/to/your/document.pdf --index my-docs --namespace research
-
-# Adjust chunking parameters
-python examples/pdf_ingestion.py path/to/your/document.pdf --chunk-size 800 --overlap 150
-
-# Add custom metadata
-python examples/pdf_ingestion.py path/to/your/document.pdf --metadata '{"author": "John Doe", "category": "research"}'
-```
-
-### Features:
-- ✅ **Smart text extraction** from PDF pages
-- ✅ **Intelligent chunking** with paragraph/sentence awareness
-- ✅ **Token counting** for optimal chunk sizes
-- ✅ **Overlapping chunks** for better context preservation
-- ✅ **Automatic index creation** if it doesn't exist
-- ✅ **Batch upload** for performance
-- ✅ **Test search** after ingestion
-- ✅ **Rich metadata** tracking (source file, chunk IDs, etc.)
-
-### Chunking Strategy:
-- Respects paragraph boundaries
-- Splits long paragraphs by sentences
-- Creates overlapping chunks for context
-- Tracks token counts for embedding limits
-
----
-
-## 🔍 Searching Your PDFs
-
-After ingesting a PDF, you can search it using the API:
-
-### Semantic Search:
-```bash
-curl -X POST 'http://localhost:8000/indexes/documents/search/semantic' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": "machine learning algorithms",
-    "top_k": 5,
-    "namespace": "default"
-  }'
-```
-
-### Hybrid Search (MCP backend only):
-```bash
-curl -X POST 'http://localhost:8000/indexes/documents/search/hybrid' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": "neural networks deep learning",
-    "top_k": 5,
-    "alpha": 0.7,
-    "rerank": true,
-    "rerank_top_n": 3,
-    "namespace": "default"
-  }'
-```
-
-### Search with Metadata Filtering:
-```bash
-curl -X POST 'http://localhost:8000/indexes/documents/search/semantic' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": "data analysis",
-    "top_k": 5,
-    "filter": {"document_type": "pdf", "author": "John Doe"},
-    "namespace": "default"
-  }'
-```
-
----
-
-## 🚀 Complete Workflow Example
-
-Here's a complete workflow to clean up test data and add your own PDF:
-
-```bash
-# 1. Start the API server
-python -m src.api &
-
-# 2. Clean up any test data
-python examples/cleanup_data.py
-
-# 3. Install PDF dependencies (if needed)
-pip install PyPDF2 tiktoken
-
-# 4. Ingest your PDF document
-python examples/pdf_ingestion.py /path/to/your/document.pdf --index my-knowledge-base
-
-# 5. Search your document
-curl -X POST 'http://localhost:8000/indexes/my-knowledge-base/search/semantic' \
-  -H 'Content-Type: application/json' \
-  -d '{"query": "what is this document about?", "top_k": 3}'
-```
-
----
-
-## 📖 Other Examples
-
-- `basic_usage.py` - Simple vector search examples
-- `advanced_usage.py` - Advanced features like hybrid search and reranking
-
----
-
-## 💡 Tips
-
-1. **Chunk Size**: Start with 1000 tokens, adjust based on your content
-2. **Overlap**: 200 tokens usually works well for maintaining context
-3. **Namespaces**: Use different namespaces to organize different document types
-4. **Metadata**: Add rich metadata for better filtering and organization
-5. **Backend Choice**: Use Pinecone MCP for advanced features like reranking 
+For more detailed documentation, see the main `README.md` and `usage.md` files in the project root.

@@ -1,0 +1,245 @@
+{
+  "session_id": "736f4844d1b2",
+  "created_at": "2025-08-17T22:06:30.622825",
+  "rag_context": {
+    "total_chunks": 15,
+    "chunks": [
+      {
+        "index": 0,
+        "text": "or edit a policy. This policy never allows programmatic access to the amzn-s3-demo-bucket bucket using long- term user access keys. This is accomplished using the aws:MultiFactorAuthAge condition key with the NumericGreaterThanIfExists condition operator. This policy condition returns true if MFA is not present or if the age of the MFA is greater than 30 minutes. In those situations, access is denied. To access the amzn-s3-demo-bucket-production bucket programmatically, the S3 administrator must use temporary credentials that were generated in the last 30 minutes using the GetSessionToken API operation. { \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"ListAllS3Buckets\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListAllMyBuckets\"], \"Resource\": \"arn:aws:s3:::*\" }, { \"Sid\": \"AllowBucketLevelActions\", \"Effect\": \"Allow\", \"Action\": [ \"s3:ListBucket\", \"s3:GetBucketLocation\" ], \"Resource\": \"arn:aws:s3:::*\" }, { \"Sid\": \"AllowBucketObjectActions\", \"Effect\": \"Allow\", \"Action\": [ \"s3:PutObject\", \"s3:Pu",
+        "score": 0.548323154,
+        "metadata": {
+          "char_count": 3231.0,
+          "chunk_id": 768.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.234329",
+          "word_count": 400.0
+        },
+        "text_hash": "890aeb15"
+      },
+      {
+        "index": 1,
+        "text": ".clone(), ), ); let succeed_config = aws_config::from_env() .credentials_provider(assumed_credentials) .load() .await; println!(\"succeed config: {:?}\", succeed_config); let succeed_client: s3Client = s3Client::new(&succeed_config); sleep(Duration::from_secs(10)).await; match succeed_client.list_buckets().send().await { Ok(_) => { println!(\"This should now run successfully.\") } Err(e) => { println!(\"This should not run. {:?}\", e); panic!() } } //Clean up. iam_service::detach_role_policy( &client, assume_role_role.role_name(), list_all_buckets_policy.arn().unwrap_or_default(), ) .await?; iam_service::delete_policy(&client, list_all_buckets_policy).await?; iam_service::delete_role(&client, &assume_role_role).await?; println!(\"Deleted role {}\", assume_role_role.role_name()); iam_service::delete_access_key(&client, &user, &key).await?; println!(\"Deleted key for {}\", key.user_name()); iam_service::delete_user_policy(&client, &user, &inline_policy_name).await?; println!(\"Deleted inline user p",
+        "score": 0.546843,
+        "metadata": {
+          "char_count": 3160.0,
+          "chunk_id": 482.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.224804",
+          "word_count": 400.0
+        },
+        "text_hash": "ddbf7bb0"
+      },
+      {
+        "index": 2,
+        "text": "the Amazon S3 bucket named productionapp . The administrator then shares the appropriate information with anyone who needs to assume the role. That information is the account number and name of the role (for AWS console users) or the Amazon Resource Name (ARN) (for AWS CLI or AWS API access). The role ARN might look like arn:aws:iam::123456789012:role/UpdateApp , where the role is named UpdateApp and the role was created in account number 123456789012. Note The administrator can optionally con\ufb01gure the role so that users who assume the role must \ufb01rst be authenticated using multi-factor authentication (MFA). For more information, see Secure API access with MFA. 2.In the development account, an administrator grants members of the Developers group permission to switch to the role. This is done by granting the Developers group permission to call the AWS Security Token Service (AWS STS) AssumeRole API for the UpdateApp role. Any IAM user that belongs to the Developers group in the developme",
+        "score": 0.53274262,
+        "metadata": {
+          "char_count": 2420.0,
+          "chunk_id": 323.0,
+          "chunk_size": 400.0,
+          "content_type": "action_reference",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.217863",
+          "word_count": 400.0
+        },
+        "text_hash": "6fb0235e"
+      },
+      {
+        "index": 3,
+        "text": "key grant is issued to an AWS service, AWS KMS uses the encryption context associated with the resource, and the key grant to help protect against cross-service confused deputy issues. Please see the documentation of the services you use for more information about service- speci\ufb01c mechanisms that can help avoid cross-service confused deputy risks, and whether aws:SourceArn , aws:SourceAccount , aws:SourceOrgID , and aws:SourceOrgPaths are supported. Cross-service confused deputy protection with resource-based policies The following example policy grants the service principal cloudtrail.amazonaws.com access to the Amazon S3 bucket, arn:aws:s3:::amzn-s3-demo-bucket1, only when the service principal is acting on behalf of AWS account 111122223333. { \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"CloudTrailAclCheck\", \"Effect\": \"Allow\", \"Principal\": {\"Service\": \"cloudtrail.amazonaws.com\"}, \"Action\": \"s3:GetBucketAcl\", \"Resource\": \"arn:aws:s3::: amzn-s3-demo-bucket1 \", \"Condition\": { \"Str",
+        "score": 0.526442409,
+        "metadata": {
+          "char_count": 3150.0,
+          "chunk_id": 318.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.217695",
+          "word_count": 400.0
+        },
+        "text_hash": "0e47afb4"
+      },
+      {
+        "index": 4,
+        "text": "Amazon SQS queues and Secrets Manager secrets by providing proposed permissions for your resource. Preview access 2842 AWS Identity and Access Management User Guide Topics \u2022Previewing access in Amazon S3 console \u2022Previewing access with IAM Access Analyzer APIs Previewing access in Amazon S3 console After you complete your bucket policy in the Amazon S3 console you have the option to preview public and cross-account access to your Amazon S3 bucket. You can validate that your policy changes grant only intended external access before you choose Save changes. This optional step enables you to preview AWS Identity and Access Management Access Analyzer \ufb01ndings for your bucket. You can validate whether the policy change introduces new \ufb01ndings or resolves existing \ufb01ndings for external access. You can skip this validation step and save your Amazon S3 bucket policy at any time. To preview external access to your bucket, you must have an active account analyzer in your bucket\u2019s region with the ac",
+        "score": 0.523852289,
+        "metadata": {
+          "char_count": 2455.0,
+          "chunk_id": 1530.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.267178",
+          "word_count": 400.0
+        },
+        "text_hash": "eb398447"
+      },
+      {
+        "index": 5,
+        "text": "Organizations, policies that include the aws:SourceOrgID key automatically include the correct accounts and you don't have to manually update the policies. Global condition keys 3949 AWS Identity and Access Management User Guide \u2022Availability \u2013 This key is included in the request context only when the call to your resource is being made directly by an AWS service principal on behalf of a resource owned by an account which is a member of an organization. The calling service passes the organization ID of the original resource to the called service. Note This key provides a uniform mechanism for enforcing cross-service confused deputy control across AWS services. However, not all service integrations require the use of this global condition key. See the documentation of the AWS services you use for more information about service-speci\ufb01c mechanisms for mitigating cross-service confused deputy risks. \u2022Data type \u2013 String \u2022Value type \u2013 Single-valued You can use this condition key to help ensu",
+        "score": 0.51892221,
+        "metadata": {
+          "char_count": 2691.0,
+          "chunk_id": 1979.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.286107",
+          "word_count": 400.0
+        },
+        "text_hash": "8b279a42"
+      },
+      {
+        "index": 6,
+        "text": "access to Amazon S3 resources outside of your account except AWS Data Exchange. (View this policy.) Example policies: AWS Data Pipeline \u2022Denies access to pipelines that a user did not create (View this policy.) Example policies 896 AWS Identity and Access Management User Guide Example policies: Amazon DynamoDB \u2022Allows access to a speci\ufb01c Amazon DynamoDB table (View this policy.) \u2022Allows access to speci\ufb01c Amazon DynamoDB attributes (View this policy.) \u2022Allows item-level access to Amazon DynamoDB based on an Amazon Cognito ID (View this policy.) Example policies: Amazon EC2 \u2022Allows attaching or detaching Amazon EBS volumes to Amazon EC2 instances based on tags (View this policy.) \u2022Allows launching Amazon EC2 instances in a speci\ufb01c subnet, programmatically and in the console (View this policy.) \u2022Allows managing Amazon EC2 security groups associated with a speci\ufb01c VPC, programmatically and in the console (View this policy.) \u2022Allows starting or stopping Amazon EC2 instances a user has tagge",
+        "score": 0.517110884,
+        "metadata": {
+          "char_count": 2628.0,
+          "chunk_id": 724.0,
+          "chunk_size": 400.0,
+          "content_type": "best_practice",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.233336",
+          "word_count": 400.0
+        },
+        "text_hash": "f12d8bc9"
+      },
+      {
+        "index": 7,
+        "text": "services 3435 AWS Identity and Access Management User Guide Service pre\ufb01xActions s3:PutAccessPointPolicyForObjectLambda s3:PutAccountPublicAccessBlock s3:PutAnalyticsCon\ufb01guration s3:PutBucketAcl s3:PutBucketCORS s3:PutBucketLogging s3:PutBucketNoti\ufb01cation s3:PutBucketObjectLockCon\ufb01guration s3:PutBucketOwnershipControls s3:PutBucketPolicy s3:PutBucketPublicAccessBlock s3:PutBucketRequestPayment s3:PutBucketVersioning s3:PutBucketWebsite s3:PutEncryptionCon\ufb01guration s3:PutIntelligentTieringCon\ufb01guration s3:PutInventoryCon\ufb01guration s3:PutLifecycleCon\ufb01guration s3:PutMetricsCon\ufb01guration s3:PutMultiRegionAccessPointPolicy s3:PutReplicationCon\ufb01guration IAM Access Analyzer policy generation services 3436 AWS Identity and Access Management User Guide Service pre\ufb01xActions s3:PutStorageLensCon\ufb01guration s3:SubmitMultiRegionAccessPointRoutes s3:UpdateAccessGrantsLocation s3:UpdateJobPriority s3:UpdateJobStatus s3-outposts s3-outposts:CreateEndpoint s3-outposts:DeleteEndpoint s3-outposts:ListEndpoint",
+        "score": 0.516972601,
+        "metadata": {
+          "char_count": 8197.0,
+          "chunk_id": 1692.0,
+          "chunk_size": 400.0,
+          "content_type": "action_reference",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.276265",
+          "word_count": 400.0
+        },
+        "text_hash": "3b34400e"
+      },
+      {
+        "index": 8,
+        "text": "(View this policy.) \u2022Allows tag owners full access to Amazon RDS resources that they have tagged (View this policy.) Example policies: Amazon S3 \u2022Allows an Amazon Cognito user to access objects in their own Amazon S3 bucket (View this policy.) \u2022Allows a user with temporary credentials to access their own home directory in Amazon S3, programmatically and in the console (View this policy.) \u2022Allows full S3 access, but explicitly denies access to the Production bucket if the administrator has not signed in using MFA within the last thirty minutes (View this policy.) \u2022Allows IAM users to access their own home directory in Amazon S3, programmatically and in the console (View this policy.) \u2022Allows a user to manage a single Amazon S3 bucket and denies every other AWS action and resource (View this policy.) \u2022Allows Read and Write access to a speci\ufb01c Amazon S3 bucket (View this policy.) \u2022Allows Read and Write access to a speci\ufb01c Amazon S3 bucket, programmatically and in the console (View this po",
+        "score": 0.512666643,
+        "metadata": {
+          "char_count": 2581.0,
+          "chunk_id": 726.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.233408",
+          "word_count": 400.0
+        },
+        "text_hash": "1fe3e80a"
+      },
+      {
+        "index": 9,
+        "text": "in the Originating account and access resources there. From time to time, a developer must update the shared data in the Destination account. The developers store this data in an Amazon S3 bucket called amzn-s3-demo-bucket- shared-container . At the end of this tutorial, you have the following: \u2022Users in the Originating account (the trusted account) allowed to assume a speci\ufb01c role in the Destination account. \u2022A role in the Destination account (the trusting account) allowed to access a speci\ufb01c Amazon S3 bucket. \u2022The amzn-s3-demo-bucket-shared-container bucket in the Destination account. Developers can use the role in the AWS Management Console to access the amzn-s3-demo- bucket-shared-container bucket in the Destination account. They can also access the bucket by using API calls authenticated by temporary credentials provided by the role. Similar attempts by an Analyst to use the role fail. This work\ufb02ow has three basic steps: Create a role in the Destination Account First, you use the ",
+        "score": 0.510515273,
+        "metadata": {
+          "char_count": 2541.0,
+          "chunk_id": 93.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.209626",
+          "word_count": 400.0
+        },
+        "text_hash": "dc24f121"
+      },
+      {
+        "index": 10,
+        "text": "to propagate these new resources and connections.\", end=\"\") progress_bar(10) return user, user_key, virtual_mfa_device Get temporary session credentials by passing an MFA token, and use the credentials to list S3 buckets for the account. Scenarios 2672 AWS Identity and Access Management User Guide def list_buckets_with_session_token_with_mfa(mfa_serial_number, mfa_totp, sts_client): \"\"\" Gets a session token with MFA credentials and uses the temporary session credentials to list Amazon S3 buckets. Requires an MFA device serial number and token. :param mfa_serial_number: The serial number of the MFA device. For a virtual MFA device, this is an Amazon Resource Name (ARN). :param mfa_totp: A time-based, one-time password issued by the MFA device. :param sts_client: A Boto3 STS instance that has permission to assume the role. \"\"\" if mfa_serial_number is not None: response = sts_client.get_session_token( SerialNumber=mfa_serial_number, TokenCode=mfa_totp ) else: response = sts_client.get_ses",
+        "score": 0.509153724,
+        "metadata": {
+          "char_count": 3387.0,
+          "chunk_id": 1403.0,
+          "chunk_size": 400.0,
+          "content_type": "best_practice",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.262241",
+          "word_count": 400.0
+        },
+        "text_hash": "10d0559d"
+      },
+      {
+        "index": 11,
+        "text": "Amazon S3 buckets, AWS KMS keys, IAM roles, Amazon SQS queues and Secrets Manager secrets. You can preview access by providing proposed permissions for an existing resource you own or a new resource you want to deploy. To preview external access to your resource, you must have an active account analyzer for the account and region of the resource. You must also have the permissions required to use IAM Access Analyzer and preview access. For more information on enabling IAM Access Analyzer and permissions required, see Getting started with AWS Identity and Access Management Access Analyzer. To preview access for a resource, you can use the CreateAccessPreview operation and provide the analyzer ARN and the access control con\ufb01guration for the resource. The service returns the unique ID for the access preview, which you can use to check the status of the access preview with the GetAccessPreview operation. When the status is Completed , you can use the ListAccessPreviewFindings operation to ",
+        "score": 0.507974863,
+        "metadata": {
+          "char_count": 2555.0,
+          "chunk_id": 1532.0,
+          "chunk_size": 400.0,
+          "content_type": "general",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.267279",
+          "word_count": 400.0
+        },
+        "text_hash": "cac7188a"
+      },
+      {
+        "index": 12,
+        "text": "bucket. { \"Version\": \"2012-10-17\", \"Statement\": { \"Sid\": \"AllowPutObject\", \"Effect\": \"Allow\", \"Principal\": \"*\", \"Action\": \"s3:PutObject\", \"Resource\": \"arn:aws:s3:::amzn-s3-demo-bucket/*\", \"Condition\": {\"StringEquals\": {\"aws:PrincipalOrgID\":\"o-xxxxxxxxxxx\"} } } } Note This global condition also applies to the management account of an AWS organization. This policy prevents all principals outside of the speci\ufb01ed organization from accessing the Amazon S3 bucket. This includes any AWS services that interact with your internal Global condition keys 3899 AWS Identity and Access Management User Guide resources, such as AWS CloudTrail sending log data to your Amazon S3 buckets. To learn how you can safely grant access for AWS services, see aws:PrincipalIsAWSService. For more information about AWS Organizations, see What Is AWS Organizations? in the AWS Organizations User Guide . aws:PrincipalTag/tag-key Use this key to compare the tag attached to the principal making the request with the tag th",
+        "score": 0.505621433,
+        "metadata": {
+          "char_count": 2621.0,
+          "chunk_id": 1941.0,
+          "chunk_size": 400.0,
+          "content_type": "policy_example",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.285183",
+          "word_count": 400.0
+        },
+        "text_hash": "089e6ad7"
+      },
+      {
+        "index": 13,
+        "text": "with a trust policy as de\ufb01ned in the AWS Data Pipeline Developer GuideThe AWS Data Pipeline documentation lists the required permissions for this use case. See IAM AWS managed policies for job functions 3880 AWS Identity and Access Management User Guide Use case Role name (* is a wildcard)Service role type to selectAWS managed policy to select roles for AWS Data Pipeline Allow your applications running on Amazon EC2 instances to access your AWS resourcesDataPipelineDefaul tResourceRoleCreate a role with a trust policy as de\ufb01ned in the AWS Data Pipeline Developer GuideAmazonEC2 RoleforDataPipelin eRole Developer power user job function AWS managed policy name: PowerUserAccess Use case: This user performs application development tasks and can create and con\ufb01gure resources and services that support AWS aware application development. Policy updates: AWS maintains and updates this policy. For a history of changes for this policy, view the policy in the IAM console and then choose the Policy",
+        "score": 0.504141867,
+        "metadata": {
+          "char_count": 2623.0,
+          "chunk_id": 1925.0,
+          "chunk_size": 400.0,
+          "content_type": "procedure",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.284689",
+          "word_count": 400.0
+        },
+        "text_hash": "87f76058"
+      },
+      {
+        "index": 14,
+        "text": "running in your data center or other infrastructure outside of AWS that must access your AWS resources. Instead of creating, distributing, and managing long-term access keys, you can use AWS Identity and Access Management Roles Anywhere (IAM Roles Anywhere) to authenticate your non AWS workloads. IAM Roles Anywhere uses X.509 certi\ufb01cates from your certi\ufb01cate authority (CA) to authenticate identities and securely provide access to AWS services with the temporary credentials provided by an IAM role. To use IAM Roles Anywhere 1. Set up a CA using AWS Private Certi\ufb01cate Authority or use a CA from your own PKI infrastructure. 2. After you have set up a CA, you create an object in IAM Roles Anywhere called a trust anchor . This anchor establishes trust between IAM Roles Anywhere and your CA for authentication. 3. You can then con\ufb01gure your existing IAM roles, or create new roles that trust the IAM Roles Anywhere service. 4. Authenticate your non AWS workloads with IAM Roles Anywhere using th",
+        "score": 0.503966808,
+        "metadata": {
+          "char_count": 2436.0,
+          "chunk_id": 325.0,
+          "chunk_size": 400.0,
+          "content_type": "best_practice",
+          "source": "aws-iam-user-guide",
+          "timestamp": "2025-07-07T18:51:35.217951",
+          "word_count": 400.0
+        },
+        "text_hash": "65ce65b2"
+      }
+    ]
+  },
+  "summary": {
+    "avg_score": 0.5190166518666667,
+    "content_types": [
+      "action_reference",
+      "procedure",
+      "policy_example",
+      "best_practice",
+      "general"
+    ],
+    "total_text_length": 46676
+  }
+}

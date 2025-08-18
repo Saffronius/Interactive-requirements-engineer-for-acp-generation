@@ -1,0 +1,82 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCICDPipelineOperations",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:GetFunction",
+        "lambda:ListFunctions",
+        "lambda:TagResource",
+        "lambda:PublishVersion",
+        "lambda:CreateAlias",
+        "lambda:UpdateAlias",
+        "apigateway:GET",
+        "apigateway:PUT",
+        "apigateway:POST",
+        "apigateway:PATCH",
+        "apigateway:DELETE",
+        "apigateway:Deploy",
+        "apigateway:UpdateRestApiPolicy",
+        "apigateway:ManageConnections",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "kms:Decrypt",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:lambda:us-east-1:123456789012:function:*",
+        "arn:aws:lambda:us-east-1:123456789012:function:*:alias/*",
+        "arn:aws:apigateway:us-east-1::/restapis/*",
+        "arn:aws:apigateway:us-east-1::/apis/*",
+        "arn:aws:s3:::prod-deployments",
+        "arn:aws:s3:::prod-deployments/*",
+        "arn:aws:kms:us-east-1:123456789012:key/abcdef12-3456-7890-abcd-ef1234567890",
+        "arn:aws:logs:us-east-1:123456789012:log-group:*",
+        "arn:aws:logs:us-east-1:123456789012:log-group:*:log-stream:*"
+      ],
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": "10.0.0.0/8"
+        },
+        "Bool": {
+          "aws:MultiFactorAuthPresent": "true"
+        },
+        "DateGreaterThanEquals": {
+          "aws:CurrentTime": "2025-01-01T14:00:00Z"
+        },
+        "DateLessThanEquals": {
+          "aws:CurrentTime": "2025-01-01T23:00:00Z"
+        },
+        "ForAnyValue:StringEquals": {
+          "kms:EncryptionContext:SecretPurpose": "CiCdDeployment"
+        }
+      }
+    },
+    {
+      "Sid": "DenyProductionDatabaseWrites",
+      "Effect": "Deny",
+      "Action": [
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:BatchWriteItem",
+        "rds:ModifyDBInstance",
+        "rds:ModifyDBCluster",
+        "rds:DeleteDBInstance",
+        "rds:DeleteDBCluster"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Environment": "Production"
+        }
+      }
+    }
+  ]
+}

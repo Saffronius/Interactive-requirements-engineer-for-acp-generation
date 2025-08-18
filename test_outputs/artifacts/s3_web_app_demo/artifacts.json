@@ -1,0 +1,144 @@
+{
+  "metadata": {
+    "session_id": "a8899b98b228",
+    "created_at": "2025-08-16T23:15:04.481981",
+    "original_prompt": "S3 read access for web application",
+    "system_version": "4-artifact-v1.0",
+    "extraction_confidence": 0.85,
+    "generation_confidence": 1.0
+  },
+  "artifacts": {
+    "read_back": {
+      "summary": "Intent extracted: read_only access to s3 services. Found 1 capabilities and 0 restrictions.",
+      "bullets": [
+        "Read_Only access to s3"
+      ],
+      "assumptions": [
+        "The specific S3 bucket(s) to be accessed need to be provided"
+      ],
+      "risk_callouts": [
+        "No explicit restrictions - consider adding deny statements",
+        "Extraction confidence 85% - manual review recommended"
+      ]
+    },
+    "spec_dsl": {
+      "version": "0.1",
+      "who": {
+        "principal_ref": "PRINCIPAL_ARN"
+      },
+      "scope": {
+        "accounts": [
+          "ACCOUNT_ID"
+        ],
+        "regions": [
+          "us-east-1"
+        ]
+      },
+      "capabilities": [
+        {
+          "name": "s3_read_access",
+          "service": "s3",
+          "resources": [],
+          "evidence": [],
+          "mode": "read_only",
+          "actions": null,
+          "components": null,
+          "conditions": []
+        }
+      ],
+      "must_never": null,
+      "notes": null
+    },
+    "baseline_policy": {
+      "Version": "2012-10-17",
+      "Statement": []
+    },
+    "candidate_policy": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "AllowListSpecificBucket",
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListBucket"
+          ],
+          "Resource": [
+            "arn:aws:s3:::example-bucket"
+          ],
+          "Condition": {
+            "Bool": {
+              "aws:SecureTransport": "true"
+            }
+          }
+        },
+        {
+          "Sid": "AllowGetObjectFromBucket",
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::example-bucket/*"
+          ],
+          "Condition": {
+            "Bool": {
+              "aws:SecureTransport": "true"
+            }
+          }
+        },
+        {
+          "Sid": "AllowKMSDecryptIfEncrypted",
+          "Effect": "Allow",
+          "Action": [
+            "kms:Decrypt"
+          ],
+          "Resource": [
+            "arn:aws:kms:us-east-1:123456789012:key/EXAMPLE-KEY-ID"
+          ]
+        }
+      ]
+    }
+  },
+  "analysis": {
+    "policy_comparison": {
+      "baseline_statement_count": 0,
+      "candidate_statement_count": 3,
+      "statement_difference": 3,
+      "baseline_actions": [],
+      "candidate_actions": [
+        "kms:Decrypt",
+        "s3:ListBucket",
+        "s3:GetObject"
+      ],
+      "common_actions": [],
+      "baseline_only_actions": [],
+      "candidate_only_actions": [
+        "s3:GetObject",
+        "s3:ListBucket",
+        "kms:Decrypt"
+      ],
+      "actions_overlap": 0.0,
+      "baseline_resources": [],
+      "candidate_resources": [
+        "arn:aws:s3:::example-bucket/*",
+        "arn:aws:s3:::example-bucket",
+        "arn:aws:kms:us-east-1:123456789012:key/EXAMPLE-KEY-ID"
+      ],
+      "common_resources": [],
+      "baseline_only_resources": [],
+      "candidate_only_resources": [
+        "arn:aws:s3:::example-bucket/*",
+        "arn:aws:s3:::example-bucket",
+        "arn:aws:kms:us-east-1:123456789012:key/EXAMPLE-KEY-ID"
+      ],
+      "resources_overlap": 0.0
+    },
+    "evidence_count": 0,
+    "capability_count": 1,
+    "restriction_count": 0
+  },
+  "context": {
+    "rag_chunks": 15,
+    "evidence_sources": []
+  }
+}

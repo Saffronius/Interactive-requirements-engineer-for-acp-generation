@@ -1,0 +1,450 @@
+{
+  "metadata": {
+    "session_id": "736f4844d1b2",
+    "created_at": "2025-08-17T22:06:30.619917",
+    "original_prompt": "Create a policy for our CI/CD pipeline that needs to deploy Lambda functions, update API Gateway configurations, read deployment artifacts from S3 bucket prod-deployments, and decrypt KMS keys for secrets management. The pipeline runs from our corporate network 10.0.0.0/8 and should only work during business hours 9AM-6PM EST. Must require MFA and block any write access to production databases.",
+    "system_version": "4-artifact-v1.0",
+    "extraction_confidence": 0.85,
+    "generation_confidence": 1.0
+  },
+  "artifacts": {
+    "read_back": {
+      "summary": "Intent extracted: write, read_only access to s3, apigateway, kms, lambda services. Found 4 capabilities and 1 restrictions.",
+      "bullets": [
+        "Write access to lambda",
+        "Write access to apigateway",
+        "Read_Only access to s3",
+        "Read_Only access to kms",
+        "Deny: Prevent accidental modification of production databases"
+      ],
+      "assumptions": [
+        "Provide target AWS account ID(s).",
+        "Provide the exact principal ARN (who principal_ref).",
+        "The ARNs of the Lambda functions, API Gateway configurations, and KMS keys are not specified and need to be provided.",
+        "Validation: S3 read_only capability 's3_read' missing bucket-level ARN"
+      ],
+      "risk_callouts": [
+        "Evidence confidence below 80% for s3_read.",
+        "Extraction confidence 85% - manual review recommended",
+        "HTTPS enforcement missing (aws:SecureTransport=true).",
+        "No evidence citations attached for api_gateway_update \u2014 results may rely on heuristics.",
+        "No evidence citations attached for kms_decrypt \u2014 results may rely on heuristics.",
+        "No evidence citations attached for lambda_deploy \u2014 results may rely on heuristics.",
+        "S3 read requires both bucket ARN (arn:aws:s3:::bucket) and object ARN (arn:aws:s3:::bucket/*).",
+        "Validation: Capability 'kms_decrypt' has evidence with confidence < 80%",
+        "Validation: Capability 'kms_decrypt' uses wildcard resources - explicit ARNs required",
+        "Validation: Capability 's3_read' has evidence with confidence < 80%",
+        "Validation: Condition key 'aws:CurrentTime' not allowed for service 'kms'",
+        "Validation: Condition key 'aws:CurrentTime' not allowed for service 's3'",
+        "Validation: Condition key 'aws:MultiFactorAuthPresent' not allowed for service 'kms'",
+        "Validation: Condition key 'aws:MultiFactorAuthPresent' not allowed for service 's3'",
+        "Validation: Unknown service in capability 'api_gateway_update': apigateway",
+        "Validation: Unknown service in capability 'lambda_deploy': lambda"
+      ]
+    },
+    "spec_dsl": {
+      "version": "0.1",
+      "who": {
+        "principal_ref": "PRINCIPAL_ARN"
+      },
+      "scope": {
+        "accounts": [
+          "ACCOUNT_ID"
+        ],
+        "regions": [
+          "us-east-1"
+        ]
+      },
+      "capabilities": [
+        {
+          "name": "lambda_deploy",
+          "service": "lambda",
+          "resources": [],
+          "evidence": [],
+          "mode": "write",
+          "actions": null,
+          "components": null,
+          "conditions": [
+            {
+              "key": "aws:MultiFactorAuthPresent",
+              "op": "Bool",
+              "value": "true",
+              "evidence": []
+            },
+            {
+              "key": "aws:SourceIp",
+              "op": "IpAddress",
+              "value": "10.0.0.0/8",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateGreaterThanEquals",
+              "value": "09:00",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateLessThan",
+              "value": "18:00",
+              "evidence": []
+            }
+          ]
+        },
+        {
+          "name": "api_gateway_update",
+          "service": "apigateway",
+          "resources": [],
+          "evidence": [],
+          "mode": "write",
+          "actions": null,
+          "components": null,
+          "conditions": [
+            {
+              "key": "aws:MultiFactorAuthPresent",
+              "op": "Bool",
+              "value": "true",
+              "evidence": []
+            },
+            {
+              "key": "aws:SourceIp",
+              "op": "IpAddress",
+              "value": "10.0.0.0/8",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateGreaterThanEquals",
+              "value": "09:00",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateLessThan",
+              "value": "18:00",
+              "evidence": []
+            }
+          ]
+        },
+        {
+          "name": "s3_read",
+          "service": "s3",
+          "resources": [
+            "arn:aws:s3:::prod-deployments/*"
+          ],
+          "evidence": [
+            {
+              "doc_url": "aws-iam-docs-chunk-0",
+              "confidence": 54,
+              "rationale": "ListBucket required for bucket enumeration",
+              "retrieved_at": "2025-08-17T22:04:56.881743",
+              "quote": "or edit a policy. This policy never allows programmatic access to the amzn-s3-demo-bucket bucket using long- term user access keys. This is accomplished using the aws:MultiFactorAuthAge condition key ",
+              "content_hash": null
+            },
+            {
+              "doc_url": "aws-iam-docs-chunk-0",
+              "confidence": 54,
+              "rationale": "GetObject required for object access",
+              "retrieved_at": "2025-08-17T22:04:56.881763",
+              "quote": "or edit a policy. This policy never allows programmatic access to the amzn-s3-demo-bucket bucket using long- term user access keys. This is accomplished using the aws:MultiFactorAuthAge condition key ",
+              "content_hash": null
+            },
+            {
+              "doc_url": "aws-iam-docs-chunk-3",
+              "confidence": 52,
+              "rationale": "GetObject required for object access",
+              "retrieved_at": "2025-08-17T22:04:56.881901",
+              "quote": "key grant is issued to an AWS service, AWS KMS uses the encryption context associated with the resource, and the key grant to help protect against cross-service confused deputy issues. Please see the ",
+              "content_hash": null
+            }
+          ],
+          "mode": "read_only",
+          "actions": null,
+          "components": null,
+          "conditions": [
+            {
+              "key": "aws:MultiFactorAuthPresent",
+              "op": "Bool",
+              "value": "true",
+              "evidence": []
+            },
+            {
+              "key": "aws:SourceIp",
+              "op": "IpAddress",
+              "value": "10.0.0.0/8",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateGreaterThanEquals",
+              "value": "09:00",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateLessThan",
+              "value": "18:00",
+              "evidence": []
+            }
+          ]
+        },
+        {
+          "name": "kms_decrypt",
+          "service": "kms",
+          "resources": [],
+          "evidence": [],
+          "mode": "read_only",
+          "actions": null,
+          "components": null,
+          "conditions": [
+            {
+              "key": "aws:MultiFactorAuthPresent",
+              "op": "Bool",
+              "value": "true",
+              "evidence": []
+            },
+            {
+              "key": "aws:SourceIp",
+              "op": "IpAddress",
+              "value": "10.0.0.0/8",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateGreaterThanEquals",
+              "value": "09:00",
+              "evidence": []
+            },
+            {
+              "key": "aws:CurrentTime",
+              "op": "DateLessThan",
+              "value": "18:00",
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "must_never": [
+        {
+          "name": "db_write_block",
+          "actions": [
+            "rds:Create*",
+            "rds:Modify*",
+            "rds:Delete*",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "resources": [
+            "arn:aws:rds:*:*:db:*",
+            "arn:aws:dynamodb:*:*:table/*"
+          ],
+          "rationale": "Prevent accidental modification of production databases",
+          "evidence": null
+        }
+      ],
+      "notes": null
+    },
+    "baseline_policy": {
+      "Version": "2012-10-17",
+      "Statement": []
+    },
+    "candidate_policy": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "AllowCICDPipelineOperations",
+          "Effect": "Allow",
+          "Action": [
+            "lambda:CreateFunction",
+            "lambda:UpdateFunctionCode",
+            "lambda:UpdateFunctionConfiguration",
+            "lambda:GetFunction",
+            "lambda:ListFunctions",
+            "lambda:TagResource",
+            "lambda:PublishVersion",
+            "lambda:CreateAlias",
+            "lambda:UpdateAlias",
+            "apigateway:GET",
+            "apigateway:PUT",
+            "apigateway:POST",
+            "apigateway:PATCH",
+            "apigateway:DELETE",
+            "apigateway:Deploy",
+            "apigateway:UpdateRestApiPolicy",
+            "apigateway:ManageConnections",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "kms:Decrypt",
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": [
+            "arn:aws:lambda:us-east-1:123456789012:function:*",
+            "arn:aws:lambda:us-east-1:123456789012:function:*:alias/*",
+            "arn:aws:apigateway:us-east-1::/restapis/*",
+            "arn:aws:apigateway:us-east-1::/apis/*",
+            "arn:aws:s3:::prod-deployments",
+            "arn:aws:s3:::prod-deployments/*",
+            "arn:aws:kms:us-east-1:123456789012:key/abcdef12-3456-7890-abcd-ef1234567890",
+            "arn:aws:logs:us-east-1:123456789012:log-group:*",
+            "arn:aws:logs:us-east-1:123456789012:log-group:*:log-stream:*"
+          ],
+          "Condition": {
+            "IpAddress": {
+              "aws:SourceIp": "10.0.0.0/8"
+            },
+            "Bool": {
+              "aws:MultiFactorAuthPresent": "true"
+            },
+            "DateGreaterThanEquals": {
+              "aws:CurrentTime": "2025-01-01T14:00:00Z"
+            },
+            "DateLessThanEquals": {
+              "aws:CurrentTime": "2025-01-01T23:00:00Z"
+            },
+            "ForAnyValue:StringEquals": {
+              "kms:EncryptionContext:SecretPurpose": "CiCdDeployment"
+            }
+          }
+        },
+        {
+          "Sid": "DenyProductionDatabaseWrites",
+          "Effect": "Deny",
+          "Action": [
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem",
+            "dynamodb:BatchWriteItem",
+            "rds:ModifyDBInstance",
+            "rds:ModifyDBCluster",
+            "rds:DeleteDBInstance",
+            "rds:DeleteDBCluster"
+          ],
+          "Resource": "*",
+          "Condition": {
+            "StringEquals": {
+              "aws:ResourceTag/Environment": "Production"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "analysis": {
+    "policy_comparison": {
+      "baseline_statement_count": 0,
+      "candidate_statement_count": 2,
+      "statement_difference": 2,
+      "baseline_actions": [],
+      "candidate_actions": [
+        "logs:PutLogEvents",
+        "lambda:UpdateAlias",
+        "s3:ListBucket",
+        "lambda:CreateFunction",
+        "apigateway:GET",
+        "rds:ModifyDBCluster",
+        "rds:DeleteDBInstance",
+        "dynamodb:BatchWriteItem",
+        "apigateway:PUT",
+        "logs:CreateLogStream",
+        "dynamodb:DeleteItem",
+        "lambda:GetFunction",
+        "lambda:UpdateFunctionCode",
+        "kms:Decrypt",
+        "logs:CreateLogGroup",
+        "lambda:PublishVersion",
+        "rds:ModifyDBInstance",
+        "lambda:CreateAlias",
+        "rds:DeleteDBCluster",
+        "apigateway:POST",
+        "apigateway:DELETE",
+        "lambda:ListFunctions",
+        "s3:GetObject",
+        "dynamodb:PutItem",
+        "apigateway:PATCH",
+        "lambda:TagResource",
+        "apigateway:Deploy",
+        "lambda:UpdateFunctionConfiguration",
+        "dynamodb:UpdateItem",
+        "apigateway:UpdateRestApiPolicy",
+        "apigateway:ManageConnections"
+      ],
+      "common_actions": [],
+      "baseline_only_actions": [],
+      "candidate_only_actions": [
+        "dynamodb:PutItem",
+        "logs:PutLogEvents",
+        "lambda:UpdateAlias",
+        "s3:ListBucket",
+        "lambda:CreateFunction",
+        "apigateway:GET",
+        "apigateway:PATCH",
+        "rds:ModifyDBCluster",
+        "rds:DeleteDBInstance",
+        "dynamodb:BatchWriteItem",
+        "apigateway:PUT",
+        "lambda:TagResource",
+        "logs:CreateLogStream",
+        "dynamodb:DeleteItem",
+        "lambda:GetFunction",
+        "lambda:UpdateFunctionCode",
+        "kms:Decrypt",
+        "logs:CreateLogGroup",
+        "apigateway:Deploy",
+        "lambda:PublishVersion",
+        "rds:ModifyDBInstance",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:CreateAlias",
+        "rds:DeleteDBCluster",
+        "apigateway:POST",
+        "apigateway:DELETE",
+        "dynamodb:UpdateItem",
+        "lambda:ListFunctions",
+        "s3:GetObject",
+        "apigateway:UpdateRestApiPolicy",
+        "apigateway:ManageConnections"
+      ],
+      "actions_overlap": 0.0,
+      "baseline_resources": [],
+      "candidate_resources": [
+        "*",
+        "arn:aws:logs:us-east-1:123456789012:log-group:*",
+        "arn:aws:logs:us-east-1:123456789012:log-group:*:log-stream:*",
+        "arn:aws:apigateway:us-east-1::/apis/*",
+        "arn:aws:kms:us-east-1:123456789012:key/abcdef12-3456-7890-abcd-ef1234567890",
+        "arn:aws:apigateway:us-east-1::/restapis/*",
+        "arn:aws:lambda:us-east-1:123456789012:function:*",
+        "arn:aws:s3:::prod-deployments",
+        "arn:aws:s3:::prod-deployments/*",
+        "arn:aws:lambda:us-east-1:123456789012:function:*:alias/*"
+      ],
+      "common_resources": [],
+      "baseline_only_resources": [],
+      "candidate_only_resources": [
+        "*",
+        "arn:aws:logs:us-east-1:123456789012:log-group:*",
+        "arn:aws:logs:us-east-1:123456789012:log-group:*:log-stream:*",
+        "arn:aws:apigateway:us-east-1::/apis/*",
+        "arn:aws:kms:us-east-1:123456789012:key/abcdef12-3456-7890-abcd-ef1234567890",
+        "arn:aws:apigateway:us-east-1::/restapis/*",
+        "arn:aws:lambda:us-east-1:123456789012:function:*",
+        "arn:aws:s3:::prod-deployments",
+        "arn:aws:s3:::prod-deployments/*",
+        "arn:aws:lambda:us-east-1:123456789012:function:*:alias/*"
+      ],
+      "resources_overlap": 0.0
+    },
+    "evidence_count": 3,
+    "capability_count": 4,
+    "restriction_count": 1
+  },
+  "context": {
+    "rag_chunks": 15,
+    "evidence_sources": [
+      "aws-iam-docs-chunk-3",
+      "aws-iam-docs-chunk-0"
+    ]
+  }
+}

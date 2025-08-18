@@ -1,57 +1,70 @@
-# IAM Policy Research Agent
+# IAM Policy Research Agent - Four-Artifact Architecture
 
-An intelligent AWS IAM policy research and generation system that combines vector search with powerful reasoning models (OpenAI o4-mini/o1-mini) to transform vague policy requests into production-ready AWS IAM policies.
+An intelligent AWS IAM policy research and generation system that combines vector search with powerful reasoning models to transform vague policy requests into production-ready AWS IAM policies with complete auditability and traceability.
 
 ## 🎯 **What This Does**
 
-Transform simple requests like *"S3 read access for web application"* into complete, secure IAM policies with:
-- **Detailed security considerations** 
-- **Specific AWS actions and resources**
-- **Production-ready JSON policies**
-- **Interactive parameter collection**
-- **Automatic policy validation**
+Transform simple requests like *"S3 read access for web application"* into **four comprehensive artifacts**:
+
+1. **📖 ReadBack**: Human-readable summary with assumptions and risks
+2. **🏗️ SpecDSL**: Machine-readable intent with evidence citations  
+3. **⚙️ Baseline Policy**: Deterministic IAM policy from canonizer rules
+4. **🧠 Candidate Policy**: LLM-generated policy for comparison
+
+Each generation includes complete provenance, confidence scores, and automated risk assessment.
 
 ## 🚀 **Key Features**
 
-### 🧠 **LLM-Enhanced Policy Generation**
-- **Modern OpenAI API**: Uses latest Responses API with `gpt-4.1` and `o4-mini-2025-04-16`
-- **Intelligent Prompt Enhancement**: Transforms vague requests into detailed technical specifications
-- **Reasoning Models**: Leverages o4-mini for complex policy analysis and generation
-- **Interactive Detail Collection**: Prompts users for missing AWS-specific details (account IDs, role names, etc.)
+### 🏗️ **Four-Artifact Architecture**
+- **Intent Extraction**: Structured intent with evidence from AWS documentation
+- **Deterministic Baseline**: Always have a safe policy to ship
+- **LLM Enhancement**: Intelligent policy generation with reasoning models  
+- **Comprehensive Analysis**: Side-by-side comparison and risk assessment
+
+### 🧠 **LLM-Enhanced Generation**
+- **Modern OpenAI API**: Uses `gpt-4.1` for enhancement and `o4-mini-2025-04-16` for reasoning
+- **Intelligent Intent Extraction**: Transforms vague requests into structured specifications
+- **Evidence-Based**: Every decision backed by AWS documentation citations
+- **Confidence Scoring**: Know when manual review is needed
 
 ### 📚 **Dual-Index Vector Search**
 - **Fine-grained Index**: 400-token chunks for specific AWS concepts and terminology
 - **Contextual Index**: 1200-token chunks for complete policy examples and procedures
-- **Real AWS Documentation**: Populated with official AWS IAM documentation (PDF ingested)
+- **Real AWS Documentation**: Populated with official AWS IAM User Guide
 - **Semantic + Hybrid Search**: Combines meaning-based and keyword-based retrieval
 
-### 🛡️ **Security-First Approach**
-- **Least Privilege Principles**: Generates policies following AWS security best practices
-- **Automatic Security Conditions**: Includes SecureTransport, VPC restrictions, etc.
-- **Policy Validation**: Checks for common security issues and placeholders
-- **Production-Ready Output**: Generates policies ready for immediate deployment
+### 🛡️ **Security & Auditability**
+- **Evidence Tracking**: Full provenance from prompt to policy with documentation citations
+- **Validation Rules**: Enforced security patterns and best practices
+- **Comparison Analysis**: Automated assessment of baseline vs candidate policies
+- **Audit Trails**: Complete session history with confidence metrics
 
-### 💾 **User Experience**
-- **Auto-Save Functionality**: Saves policies in JSON and Markdown formats with timestamps
-- **Clear Confidence Indicators**: Shows AI confidence levels for decisions
-- **Complete Explanations**: Provides detailed explanations of what each policy does
-- **Improvement Suggestions**: Offers recommendations for enhancing security
+### 💾 **Structured Output**
+- **Session Management**: Organized artifact storage with global indexing
+- **Multiple Formats**: JSON for automation, Markdown for humans
+- **Comprehensive Reports**: Policy comparison, evidence archives, audit trails
+- **Easy Navigation**: Auto-generated README and session guides
 
 ## 🏗️ **Architecture**
 
 ```
 vector_search/
-├── examples/
-│   └── iam_policy_agent.py      # Main IAM policy research agent
 ├── src/
-│   ├── vector_store/
-│   │   ├── base.py              # Vector store abstractions
-│   │   ├── pinecone_store.py    # Direct Pinecone integration
-│   │   └── pinecone_mcp_store.py # Pinecone MCP integration
-│   ├── search_agent.py          # Search orchestration
-│   └── api.py                   # REST API endpoints
-├── generated_policies/          # Auto-saved policy outputs
-└── data/                       # AWS documentation chunks
+│   ├── policy_types.py          # Data contracts and validation
+│   ├── intent_extractor.py      # NL → SpecDSL with evidence
+│   ├── canonizer.py             # SpecDSL → deterministic policy
+│   ├── artifact_saver.py        # Comprehensive storage system
+│   ├── search_agent.py          # Vector search coordination
+│   └── vector_store/            # Backend abstractions
+├── examples/
+│   ├── iam_policy_agent.py      # Main four-artifact generator
+│   ├── pdf_ingestion.py         # Process new AWS documentation
+│   └── CHUNKING_STRATEGY.md     # Documentation approach
+├── populate_iam_indexes.py      # Setup AWS documentation indexes
+└── outputs/                     # Generated artifacts
+    ├── artifacts/               # Four-artifact sessions
+    ├── session_index.json       # Global session tracker
+    └── ...
 ```
 
 ## 🚀 **Quick Start**
@@ -59,281 +72,235 @@ vector_search/
 ### 1. **Setup**
 
 ```bash
-# Clone and install
-git clone <repository-url>
-cd vector_search
+# Install dependencies
 pip install -r requirements.txt
 
-# Set up OpenAI API key
+# Set up environment
 export OPENAI_API_KEY=your_openai_api_key
 
 # Start the vector search backend
-python -m src.api  # Runs on http://localhost:8000
+python3 -m src.api  # Runs on http://localhost:8000
 ```
 
-### 2. **Generate Your First IAM Policy**
+### 2. **Populate IAM Documentation (One-time)**
 
 ```bash
-# Simple usage - generates complete policy with auto-save
-python examples/iam_policy_agent.py "S3 read access for web application"
-
-# Enhanced mode - only improve the prompt
-python examples/iam_policy_agent.py --enhance-only "database permissions"
-
-# Specific policy generation with context
-python examples/iam_policy_agent.py --generate-policy "Lambda execution role" --context "API Gateway integration"
+# Download AWS IAM User Guide PDF and populate vector indexes
+python3 populate_iam_indexes.py
 ```
 
-### 3. **Interactive Experience**
+### 3. **Generate Your First Policy Artifacts**
 
-The agent will:
-1. **Enhance your prompt** using AWS documentation context
-2. **Generate a complete policy** using reasoning models
-3. **Detect missing details** (account IDs, role names, etc.)
-4. **Prompt you interactively** to provide real values
-5. **Update the policy** with your specific AWS resources
-6. **Auto-save** the final policy in multiple formats
+```bash
+# Four-artifact mode with comprehensive analysis
+python3 examples/iam_policy_agent.py "S3 read access for web application" --artifacts
 
-Example interaction:
-```
-🔧 MISSING REQUIRED DETAILS
-==================================================
-The generated policy contains placeholders that need real AWS values:
-  • AWS Account ID
-  • IAM Role Name
-  • S3 Bucket Name
-
-Would you like to provide these details now? (y/n): y
-Enter your AWS Account ID (12 digits): 123456789012
-Enter the exact IAM role name: WebAppRole
-Enter the S3 bucket name: my-webapp-bucket
-
-✅ Policy updated with your provided details!
+# Custom session name and output location
+python3 examples/iam_policy_agent.py "Lambda execution role" --artifacts \
+  --session-name "lambda_prod_policy" --output-dir "production_policies"
 ```
 
-## 📋 **Usage Examples**
+### 4. **Review Generated Artifacts**
+
+```bash
+# Navigate to session directory
+cd outputs/artifacts/YYYYMMDD_HHMMSS_session_name
+
+# Quick overview
+cat README.md
+
+# Human-readable summary
+cat read_back.md
+
+# Policy comparison analysis  
+cat policy_comparison.md
+
+# Complete structured data
+jq . artifacts.json
+```
+
+## 📋 **Output Structure**
+
+Each generation creates a complete session directory:
+
+```
+outputs/artifacts/session_name/
+├── artifacts.json            # Master file with all artifacts and metadata
+├── read_back.md             # Human-readable summary and risk analysis
+├── spec_dsl.json            # Machine-readable intent with evidence
+├── baseline_policy.json     # Deterministic policy from canonizer
+├── candidate_policy.json    # LLM-generated policy
+├── evidence_archive.json    # RAG context and documentation citations
+├── policy_comparison.md     # Side-by-side policy analysis
+├── audit_trail.json         # Confidence scores and quality metrics
+└── README.md               # Session overview and usage guide
+```
+
+## 💡 **Usage Examples**
 
 ### **Basic Policy Generation**
 ```bash
-python examples/iam_policy_agent.py "EC2 read-only access for monitoring"
+python3 examples/iam_policy_agent.py "EC2 read-only access for monitoring" --artifacts
 ```
 
 ### **Complex Security Scenarios**
 ```bash
-python examples/iam_policy_agent.py "Deny all users except security team from accessing confidential S3 bucket"
+python3 examples/iam_policy_agent.py "Cross-account S3 access with MFA requirement" --artifacts
 ```
 
-### **Custom Options**
+### **Production Workflow**
 ```bash
-# Save to specific location
-python examples/iam_policy_agent.py "RDS access policy" --save /path/to/policy
+# Generate with custom naming
+python3 examples/iam_policy_agent.py "Production RDS access policy" --artifacts \
+  --session-name "prod_rds_v1" --output-dir "approved_policies"
 
-# JSON only output
-python examples/iam_policy_agent.py "Lambda permissions" --save-format json
+# Review and validate
+cd approved_policies/artifacts/prod_rds_v1
+cat policy_comparison.md  # Check baseline vs candidate alignment
+cat audit_trail.json     # Verify confidence scores
 
-# Skip auto-save
-python examples/iam_policy_agent.py "S3 policy" --no-save
+# Deploy the safer baseline or validated candidate
+aws iam create-policy --policy-name ProdRDSAccess \
+  --policy-document file://baseline_policy.json
+```
+
+## 🔧 **Command Reference**
+
+### **Four-Artifact Mode (Recommended)**
+```bash
+# Basic generation
+python3 examples/iam_policy_agent.py "your request" --artifacts
+
+# Customized output
+python3 examples/iam_policy_agent.py "your request" --artifacts \
+  --session-name "custom_name" \
+  --output-dir "custom_directory" \
+  --no-save  # Display only, no files
+
+# API configuration
+python3 examples/iam_policy_agent.py "your request" --artifacts \
+  --api-base http://localhost:8000 \
+  --openai-key sk-your-key
+```
+
+### **Legacy Mode (Single Policy)**
+```bash
+# For compatibility with existing workflows
+python3 examples/iam_policy_agent.py "your request"
+python3 examples/iam_policy_agent.py "your request" --save-format json
 ```
 
 ## 🧠 **How It Works**
 
-### **1. Prompt Enhancement**
-- User provides simple request: *"S3 access for app"*
-- Agent searches fine-grained index for AWS concepts
-- LLM enhances to detailed specification with specific actions, resources, conditions
+### **1. Intent Extraction**
+- Searches fine-grained AWS documentation chunks
+- Uses LLM to extract structured intent with evidence
+- Produces human-readable ReadBack and machine-readable SpecDSL
 
-### **2. Context Gathering**
-- Searches contextual index for complete policy examples
-- Retrieves AWS best practices and security considerations
-- Ranks and filters most relevant documentation
+### **2. Baseline Generation**  
+- Applies deterministic canonizer rules to SpecDSL
+- Generates safe, idiomatic IAM policies
+- Enforces security patterns and validation rules
 
-### **3. Policy Generation**
-- Uses reasoning model (o4-mini) for complex policy analysis
-- Generates complete JSON policy with explanations
-- Includes security notes and improvement suggestions
+### **3. Candidate Generation**
+- Uses reasoning models (o4-mini) with contextual documentation
+- Generates comprehensive policies with explanations
+- Provides security notes and improvement suggestions
 
-### **4. Interactive Refinement**
-- Detects placeholder values that need real AWS details
-- Prompts user for specific account IDs, role names, bucket names
-- Updates policy with actual values for production readiness
+### **4. Analysis & Storage**
+- Compares baseline vs candidate policies automatically
+- Archives complete RAG context and evidence citations
+- Tracks confidence scores and quality metrics
+- Organizes everything in structured session directories
 
-## 🎛️ **Command Line Options**
+## 🛡️ **Security & Best Practices**
 
+### **Built-in Security**
+- **Least Privilege**: Default to minimal necessary permissions
+- **Explicit Denials**: Automatic security restrictions
+- **Condition Enforcement**: SecureTransport, IP restrictions, VPC requirements
+- **Validation Rules**: Prevent dangerous patterns
+
+### **Audit & Compliance**
+- **Complete Provenance**: Every decision traced to documentation
+- **Confidence Scoring**: Quantified reliability metrics  
+- **Evidence Archives**: Full context preservation
+- **Session History**: Global tracking of all generations
+
+### **Production Deployment**
+1. **Review ReadBack** for human understanding
+2. **Check Comparison Report** for policy alignment
+3. **Validate Confidence Scores** (>80% recommended)
+4. **Deploy Baseline** for safety or **Candidate** if validated
+5. **Monitor with CloudTrail** and **test in development first**
+
+## 📊 **Data Sources**
+
+- **AWS IAM User Guide**: Official AWS PDF documentation
+- **Fine-grained Chunks**: 400-token pieces for concept discovery
+- **Contextual Chunks**: 1200-token pieces for complete examples
+- **Evidence Citations**: Full traceability to source documentation
+
+## 🔧 **Setup & Administration**
+
+### **Adding New Documentation**
 ```bash
-# Basic usage
-python examples/iam_policy_agent.py "your request"
+# Process new AWS PDFs
+python3 examples/pdf_ingestion.py --pdf-path /path/to/new-guide.pdf
 
-# Mode selection
---enhance-only "request"           # Only enhance prompt, no policy generation
---generate-policy "request"        # Generate complete policy
-
-# Output control
---save PATH                        # Custom save path (without extension)
---no-save                         # Skip auto-save
---save-format {json,markdown,both} # Output format (default: both)
-
-# System options
---api-base URL                     # Vector DB API base (default: localhost:8000)
---openai-key KEY                  # OpenAI API key (or use env var)
---no-llm                          # Vector search only, no LLM enhancement
+# Update existing indexes
+python3 populate_iam_indexes.py
 ```
 
-## 🔧 **Configuration**
-
-### **Environment Variables**
+### **Health Monitoring**
 ```bash
-# Required for LLM features
-OPENAI_API_KEY=sk-your-openai-key
+# Check vector database health
+curl -X GET "http://localhost:8000/health"
 
-# Optional API configuration
-API_HOST=0.0.0.0
-API_PORT=8000
-
-# Vector store backend
-PINECONE_API_KEY=your-pinecone-key  # If using direct Pinecone
+# Verify IAM indexes
+python3 test_iam_indexes.py
 ```
 
-### **Model Selection**
-The agent automatically selects the best available models:
-- **Prompt Enhancement**: `gpt-4.1` (excellent instruction following)
-- **Policy Generation**: `o4-mini-2025-04-16` (reasoning model for complex analysis)
-- **Fallbacks**: `gpt-4o`, `gpt-4-turbo` if reasoning models unavailable
-
-## 📊 **Sample Output**
-
-### **Input**
+### **Session Management**
 ```bash
-python examples/iam_policy_agent.py "S3 read access for web application"
+# View all sessions
+jq '.sessions' outputs/session_index.json
+
+# Find sessions by confidence
+jq '.sessions[] | select(.extraction_confidence > 0.9)' outputs/session_index.json
 ```
 
-### **Output**
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "S3ReadOnlyAccess",
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket",
-        "s3:GetBucketLocation"
-      ],
-      "Resource": [
-        "arn:aws:s3:::my-webapp-bucket",
-        "arn:aws:s3:::my-webapp-bucket/*"
-      ],
-      "Condition": {
-        "Bool": {
-          "aws:SecureTransport": "true"
-        }
-      }
-    }
-  ]
-}
-```
+## 📈 **Benefits Over Traditional IAM Policy Generation**
 
-Plus comprehensive explanation, security notes, and improvement suggestions.
+### **Traditional Approach:**
+- ❌ Single policy output with no comparison
+- ❌ No provenance or evidence tracking  
+- ❌ Manual security review required
+- ❌ No confidence indicators
+- ❌ Difficult to audit decisions
 
-## 🗂️ **Auto-Generated Files**
-
-The agent automatically saves policies in `generated_policies/` with timestamps:
-
-```
-generated_policies/
-├── 20240715_143012_S3_read_access_for_web_application.json
-├── 20240715_143012_S3_read_access_for_web_application.md
-├── 20240715_144523_Lambda_execution_permissions.json
-└── 20240715_144523_Lambda_execution_permissions.md
-```
-
-## 🧪 **Data Sources**
-
-The system uses real AWS documentation:
-- **IAM User Guide** (official AWS PDF documentation)
-- **Fine-grained chunks**: Specific AWS concepts, actions, conditions
-- **Contextual chunks**: Complete policy examples, procedures, tutorials
-- **Continuously updated**: Easy to add new AWS documentation
-
-## 🔍 **Vector Search API**
-
-For direct vector search without LLM enhancement:
-
-```bash
-# Semantic search
-curl -X POST "http://localhost:8000/indexes/iam-policy-guide-fine/search/semantic" \
-     -H "Content-Type: application/json" \
-     -d '{"query": "S3 permissions", "top_k": 5, "namespace": "aws-iam-detailed"}'
-
-# Hybrid search with reranking
-curl -X POST "http://localhost:8000/indexes/iam-policy-guide-context/search/semantic" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "query": "policy examples bucket access",
-       "top_k": 10,
-       "namespace": "aws-iam-examples",
-       "rerank": {"model": "pinecone-rerank-v0", "topN": 3, "rankFields": ["text"]}
-     }'
-```
-
-## 🛡️ **Security Best Practices**
-
-The agent follows AWS security principles:
-- **Least Privilege**: Grants minimum necessary permissions
-- **Explicit Deny**: Uses deny statements where appropriate
-- **Condition Keys**: Includes security conditions (SecureTransport, MFA, etc.)
-- **Resource Specificity**: Avoids wildcards unless necessary
-- **Documentation**: Explains security implications of each policy
-
-## 🤝 **Contributing**
-
-1. **Add new AWS documentation**: Place PDFs in `data/` and run ingestion
-2. **Improve prompts**: Enhance the LLM prompts in `iam_policy_agent.py`
-3. **Add policy templates**: Extend the vector search with new policy patterns
-4. **Test with real scenarios**: Validate against actual AWS use cases
+### **Four-Artifact Approach:**
+- ✅ **Two policies**: Safe baseline + enhanced candidate
+- ✅ **Complete provenance**: Every decision traced to documentation
+- ✅ **Automated analysis**: Risk assessment and comparison reports
+- ✅ **Confidence scoring**: Know when manual review is needed
+- ✅ **Audit ready**: Full session history and evidence archives
 
 ## 🚨 **Important Notes**
 
-- **Review generated policies** before deploying to production
-- **Test policies** in development environments first
-- **Keep documentation updated** as AWS introduces new services
-- **Monitor OpenAI usage** as LLM calls incur API costs
-- **Validate account-specific details** (account IDs, role names, etc.)
+- **Review all policies** before production deployment
+- **Test in development** environments first
+- **Monitor confidence scores** - manual review if <80%
+- **Keep documentation updated** as AWS services evolve
+- **Validate account-specific details** (account IDs, resource names)
 
-## 📖 **Examples Gallery**
+## 🤝 **Contributing**
 
-### **Simple S3 Access**
-```bash
-Input: "S3 read access for web app"
-Output: Complete policy with GetObject, ListBucket, SecureTransport condition
-```
-
-### **Complex Security Scenario**
-```bash
-Input: "Deny all users except security team from confidential bucket"
-Output: Bucket policy with NotPrincipal exceptions and explicit deny
-```
-
-### **Cross-Service Permissions**
-```bash
-Input: "Lambda function needs to read from DynamoDB and write logs"
-Output: Multi-service policy with appropriate CloudWatch and DynamoDB permissions
-```
-
-## 🎓 **Learning Resources**
-
-- **AWS IAM Documentation**: https://docs.aws.amazon.com/iam/
-- **Policy Examples**: Check `generated_policies/` for real outputs
-- **Vector Search**: Explore the search API for understanding how retrieval works
-- **OpenAI Reasoning Models**: Learn about o4-mini capabilities
-
-## 📞 **Support**
-
-- **Issues**: Open GitHub issues for bugs or feature requests
-- **Documentation**: Check the `examples/` directory for usage patterns
-- **API Reference**: Visit `http://localhost:8000/docs` when running the API
-- **Vector Search**: Use the search endpoints to understand document retrieval
+1. **Add AWS Documentation**: Place new PDFs in appropriate locations
+2. **Extend Canonizer Rules**: Add support for new AWS services
+3. **Improve Intent Extraction**: Enhance LLM prompts and validation
+4. **Add Policy Patterns**: Contribute common policy templates
 
 ---
 
-**Transform your IAM policy requirements into production-ready AWS policies with AI-powered assistance!** 🚀 
+**Transform your IAM policy requirements into production-ready policies with complete auditability and traceability!** 🚀

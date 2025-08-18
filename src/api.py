@@ -87,11 +87,6 @@ async def lifespan(app: FastAPI):
         VectorStoreType.PINECONE_MCP: {
             # MCP uses environment variables automatically
         },
-        VectorStoreType.PINECONE_MCP_ENHANCED: {
-            "api_key": pinecone_api_key,
-            "embedding_model": "multilingual-e5-large",
-            "default_namespace": "default"
-        },
         VectorStoreType.QDRANT: {
             "host": os.getenv("QDRANT_HOST", "localhost"),
             "port": int(os.getenv("QDRANT_PORT", "6333")),
@@ -415,25 +410,34 @@ async def get_available_stores():
     # Check which stores are properly configured
     configured_stores = {}
     for store_key, store_info in stores.items():
-        store_type = VectorStoreType(store_key)
-        config_available = False
-        
-        if hasattr(search_agent, '_store_configs'):
-            config = search_agent._store_configs.get(store_type, {})
-            # Check if required environment variables are set
-            if store_key == "pinecone":
-                config_available = bool(config.get("api_key"))
-            elif store_key == "pinecone_mcp":
-                config_available = bool(os.getenv("PINECONE_API_KEY"))
-            elif store_key == "pinecone_mcp_enhanced":
-                config_available = bool(config.get("api_key"))
-            elif store_key == "qdrant":
-                config_available = bool(config.get("host"))
-        
+        # Safely resolve config for known enum keys; tolerate extras
+        if hasattr(search_agent, "_store_configs"):
+            try:
+                enum_key = VectorStoreType(store_key)
+                config = search_agent._store_configs.get(enum_key, {})
+            except ValueError:
+                config = {}
+        else:
+            config = {}
+
+        # Determine if store is configured
+        if store_key == "pinecone":
+            config_available = bool(config.get("api_key"))
+        elif store_key == "pinecone_mcp":
+            # MCP path depends on env API key
+            config_available = bool(os.getenv("PINECONE_API_KEY"))
+        elif store_key == "pinecone_mcp_enhanced":
+            # Treat as alias of MCP for config purposes
+            config_available = bool(os.getenv("PINECONE_API_KEY"))
+        elif store_key == "qdrant":
+            config_available = bool(config.get("host"))
+        else:
+            config_available = False
+
         configured_stores[store_key] = {
             **store_info,
             "configured": config_available,
-            "current": search_agent.store_type.value == store_key if search_agent else False
+            "current": (search_agent.store_type.value == store_key) if search_agent else False,
         }
     
     return {"stores": configured_stores}
